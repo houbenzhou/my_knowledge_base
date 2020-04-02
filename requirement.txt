@@ -2,3 +2,5 @@ jupyterlab
 numpy
 shapely
 opencv-python
+PyYAML
+lxml
