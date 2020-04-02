@@ -46,7 +46,8 @@ except NameError:
 try:
     import builtins as __builtin__
 except ImportError:
-    import __builtin__
+    pass
+    # import __builtin__
 
 def _swig_setattr_nondynamic(self, class_type, name, value, static=1):
     if (name == "thisown"):
