@@ -27,7 +27,7 @@ def _create_dota_task2(input_data, out_file, categoty):
                 ymax = label_file_list[6]
                 categoty_from_list = str(label_file_list[0])
                 if categoty_from_list == categoty:
-                    outline = pic_name + ' ' + str(score) + ' ' + xmin + ' ' + ymin + ' ' + xmax + '' + ymax
+                    outline = pic_name + ' ' + str(score) + ' ' + xmin + ' ' + ymin + ' ' + xmax + ' ' + ymax
                     file_out.write(outline )
 
 
