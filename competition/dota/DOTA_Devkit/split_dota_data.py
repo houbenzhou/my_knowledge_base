@@ -244,8 +244,8 @@ class splitbase():
 
 if __name__ == '__main__':
     # example usage of ImgSplit
-    split = splitbase(r'example',
-                      r'example_train', code='utf-8',
+    split = splitbase(r'data/example',
+                      r'data/example_train', code='utf-8',
                       gap=100,
                       subsize=2000,
                       thresh=0.7)
