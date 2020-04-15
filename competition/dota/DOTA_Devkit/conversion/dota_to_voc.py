@@ -3,6 +3,9 @@ from collections import OrderedDict
 
 import yaml
 from PIL import Image
+from PIL import ImageFile
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 def save_xml(image_name, lists, save_dir, width=1609, height=500, channel=3):
@@ -101,11 +104,12 @@ def ordered_yaml_dump(data, stream=None, Dumper=yaml.SafeDumper, **kwds):
     return yaml.dump(data, stream, OrderedDumper, **kwds)
 
 
-def create_annotation(path_images, path_label, category, tile_size, tile_offset, target_label_path, sda_path):
+def create_annotation(path_images, path_label, categorys, tile_size, tile_offset, target_label_path, sda_path):
     pic_names = os.listdir(path_images)
     if not os.path.exists(target_label_path):
         os.makedirs(target_label_path)
     dict_categorys = set([])
+    categorys_temp = ['__background__']
     for pic_name in pic_names:
         # 获取图片路径，用于获取图像大小以及通道数
         images_pth = os.path.join(path_images, pic_name)
@@ -121,6 +125,7 @@ def create_annotation(path_images, path_label, category, tile_size, tile_offset,
         label_path = os.path.join(path_label, label_name)
         file = open(label_path, "r", encoding="utf-8", errors="ignore")
         m = 0
+
         try:
             while True:
                 mystr = file.readline()  # 表示一次读取一行
@@ -148,74 +153,88 @@ def create_annotation(path_images, path_label, category, tile_size, tile_offset,
                     name = list[8]
                     dict_categorys.add(name)
                     difficult = int(list[9][0])
-                    # if (name != " storage tank") & (name != "helicopter") & (name != "roundabout") & (ymax < height) & (
-                    #         xmax < width) & (ymax > ymin) & (xmax > xmin) & (ymin > 0) & (
-                    #         xmin > 0):
-                    if (name == category) & (ymax < height) & (
-                            xmax < width) & (ymax > ymin) & (xmax > xmin) & (ymin > 0) & (
-                            xmin > 0) & (difficult <= 1):
-                        if ((ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
-                            listnew = []
-                            listnew.append(xmin)
-                            listnew.append(ymin)
-                            listnew.append(xmax)
-                            listnew.append(ymax)
 
-                            listnew.append(name)
-                            if difficult <= 1:
-                                listnew.append(difficult)
-                            else:
-                                listnew.append(1)
+                    if categorys is not None:
+                        if ((name == 'plane') | (name == 'ship') | (name == 'small-vehicle') | (
+                                name == 'large-vehicle')) & (ymax < height) & (
+                                xmax < width) & (ymax > ymin) & (xmax > xmin) & (ymin > 0) & (
+                                xmin > 0) & (difficult <= 1):
+                            if ((ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
+                                listnew = []
+                                listnew.append(xmin)
+                                listnew.append(ymin)
+                                listnew.append(xmax)
+                                listnew.append(ymax)
 
-                            lists.append(listnew)
+                                listnew.append(name)
+                                if difficult <= 1:
+                                    listnew.append(difficult)
+                                else:
+                                    listnew.append(1)
 
-                            if (xmax <= xmin) | (ymax <= ymin):
-                                print(listnew)
-                                print(pic_name)
+                                lists.append(listnew)
+
+                                if (xmax <= xmin) | (ymax <= ymin):
+                                    print(listnew)
+                                    print(pic_name)
+                    else:
+                        if (ymax < height) & (
+                                xmax < width) & (ymax > ymin) & (xmax > xmin) & (ymin > 0) & (
+                                xmin > 0) & (difficult <= 1):
+                            if ((ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
+                                listnew = []
+                                listnew.append(xmin)
+                                listnew.append(ymin)
+                                listnew.append(xmax)
+                                listnew.append(ymax)
+
+                                listnew.append(name)
+                                if difficult <= 1:
+                                    listnew.append(difficult)
+                                else:
+                                    listnew.append(1)
+
+                                lists.append(listnew)
+
+                                if (xmax <= xmin) | (ymax <= ymin):
+                                    print(listnew)
+                                    print(pic_name)
+                                category = name
+                                # 获取数据集中category字段保存的类别
+                                if category not in categorys_temp:
+                                    categorys_temp.append(category)
+
+
+
         except:
             pass
-        # 创建VOC数据描述配置文件
-        categorys = ['__background__']
-        categorys.append(category)
-        # 1024 更新tile记录数
-        dic_voc_yml = OrderedDict({
-            'dataset': OrderedDict({"name": "example_voc",
-                                    'classes': categorys,
-                                    'image_count': 0,
-                                    "data_type": "voc",
-                                    "input_bandnum": 3, "input_ext": 'tif',
-                                    "x_ext": 'jpg',
-                                    "tile_size_x": tile_size,
-                                    "tile_size_y": tile_size,
-                                    "tile_offset_x": tile_offset,
-                                    "tile_offset_y": tile_offset,
-                                    "image_mean": [115.6545965, 117.62014299, 106.01483799],
-                                    "image_std": [56.82521775, 53.46318049, 56.07113724]}),
-
-        })
-        # 600 更新tile记录数
-        # dic_voc_yml = OrderedDict({
-        #     'dataset': OrderedDict({"name": "example_voc",
-        #                             'classes': categorys,
-        #                             'image_count': 0,
-        #                             "data_type": "voc",
-        #                             "input_bandnum": 3, "input_ext": 'tif',
-        #                             "x_ext": 'jpg',
-        #                             "tile_size_x": 600,
-        #                             "tile_size_y": 600,
-        #                             "tile_offset_x": 300,
-        #                             "tile_offset_y": 300,
-        #                             "image_mean": [115.6545965, 117.62014299, 106.01483799],
-        #                             "image_std": [56.82521775, 53.46318049, 56.07113724]}),
-        #
-        # })
-        save_config_to_yaml(dic_voc_yml, sda_path)
         if lists == []:
             print("null")
         else:
             save_xml(pic_name, lists, target_label_path, width, height,
                      channel)
         del lists[:]
+        # 创建VOC数据描述配置文件
+    if categorys is not None:
+        for category in categorys:
+            categorys_temp.append(category)
+        # 1024 更新tile记录数
+    dic_voc_yml = OrderedDict({
+        'dataset': OrderedDict({"name": "example_voc",
+                                'classes': categorys_temp,
+                                'image_count': 0,
+                                "data_type": "voc",
+                                "input_bandnum": 3, "input_ext": 'tif',
+                                "x_ext": 'jpg',
+                                "tile_size_x": tile_size,
+                                "tile_size_y": tile_size,
+                                "tile_offset_x": tile_offset,
+                                "tile_offset_y": tile_offset,
+                                "image_mean": [115.6545965, 117.62014299, 106.01483799],
+                                "image_std": [56.82521775, 53.46318049, 56.07113724]}),
+
+    })
+    save_config_to_yaml(dic_voc_yml, sda_path)
 
 
 def _save_index_file(output_path_main, output_path_img):
@@ -263,6 +282,7 @@ def create_images(path, voc_labels_path, out_path):
     pic_names = os.listdir(voc_labels_path)
 
     for pic_name in pic_names:
+        print(pic_name)
         train = pic_name.split(".")[0]
         im = Image.open(os.path.join(path, train + ".png"))
         bg = Image.new("RGB", im.size, (255, 255, 255))
@@ -271,10 +291,11 @@ def create_images(path, voc_labels_path, out_path):
 
 
 if __name__ == '__main__':
-    # # plane 1024 gsd 0.5
-    input_path = '/home/data/windowdata/data/rss_splite/example_train_rss_splite_1024_0.5'
-    voc_path = '/home/data/windowdata/data/rssrai2019_hou_gsd/1024_0.5/plane/VOC'
-    category = 'plane'
+    # input_path = '/home/data/windowdata/data/dota/dotav1/train'
+    # voc_path = '/home/data/windowdata/data/dota/dotav1/voc'
+    input_path = '/home/data/windowdata/data/dota/dotav2/dotav2/splite_train'
+    voc_path = '/home/data/windowdata/data/dota/dotav2/dotav2/voc'
+    category = None
     tile_size = 1024
     tile_offset = 512
     path_images = os.path.join(input_path, "images")
