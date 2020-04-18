@@ -7,6 +7,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 def del_annotation(path_images, path_label):
     label_names = os.listdir(path_label)
+    images_names = os.listdir(path_images)
 
     for label_name in label_names:
         label_pth = os.path.join(path_label, label_name)
@@ -17,6 +18,15 @@ def del_annotation(path_images, path_label):
             pass
         else:
             os.remove(label_pth)
+    for image_name in images_names:
+        img_pth = os.path.join(path_images, image_name)
+
+        lab_name = image_name.split('.')[0] + '.xml'
+        lab_pth = os.path.join(path_label, lab_name)
+        if os.path.exists(lab_pth):
+            pass
+        else:
+            os.remove(img_pth)
 
 
 def _save_index_file(output_path_main, output_path_img):
@@ -59,7 +69,7 @@ def _save_index_file(output_path_main, output_path_img):
 
 
 if __name__ == '__main__':
-    voc_path = '/home/data/hou/workspaces/iobjectspy/resources_ml/example/项目/中南勘测院/out/2020-04-14/光3_train_test/VOC_491_8_14_x1_7_y_1_10'
+    voc_path = '/home/data/hou/workspaces/iobjectspy/resources_ml/example/项目/中南勘测院/out/2020-04-17/mountain_train_test_800/VOC'
     voc_labels_path = os.path.join(voc_path, "Annotations")
     voc_images_path = os.path.join(voc_path, "Images")
     voc_main_path = os.path.join(voc_path, "ImageSets", "Main")
