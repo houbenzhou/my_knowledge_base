@@ -38,7 +38,7 @@ class FasterRCNNEstimation(object):
         self.close_model(self.sess)
         return result
 
-    def estimation_dir(self, input_data, category_name, out_data_path, out_name, nms_thresh=0.3,
+    def estimation_dir(self, input_data, category_name, out_data_path, nms_thresh=0.3,
                        score_thresh=0.5):
         """
        input_data为目录,进行影像数据目标检测
@@ -211,9 +211,9 @@ class FasterRCNNEstimation(object):
                     bbox = dets[s, :5]
                     if ds.crs is None:
                         xmin = round(float(bbox[0]), 4) + block_xmin
-                        ymin = round(float(bbox[3]), 4) + block_ymin
+                        ymin = round(float(bbox[1]), 4) + block_ymin
                         xmax = round(float(bbox[2]), 4) + block_xmin
-                        ymax = round(float(bbox[1]), 4) + block_ymin
+                        ymax = round(float(bbox[3]), 4) + block_ymin
                         score_single_bbox = round(float(bbox[4]), 4)
                     else:
                         coord_min = transform.xy(transf, bbox[1] + float(block_ymin),
