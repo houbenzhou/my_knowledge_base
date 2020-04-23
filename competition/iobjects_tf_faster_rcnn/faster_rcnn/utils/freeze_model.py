@@ -58,7 +58,7 @@ def freeze_model(input_checkpoint, net, output_graph, num_category,anchor_scales
     # load network
     # net = resnetv1(num_layers=101)
     net.create_architecture("TEST", num_category + 1,
-                            tag='default', anchor_scales=[4, 8, 16, 32], anchor_ratios=(0.25, 0.5, 1, 2, 4))
+                            tag='default', anchor_scales=anchor_scales, anchor_ratios=anchor_ratios)
     output_node_names = "resnet_v1_101_5/cls_score/BiasAdd,resnet_v1_101_5/cls_prob,resnet_v1_101_5/bbox_pred/BiasAdd,resnet_v1_101_3/rois/concat"
     output_graph_temp = output_graph + "temp.pb"
     saver = tf.train.Saver()
