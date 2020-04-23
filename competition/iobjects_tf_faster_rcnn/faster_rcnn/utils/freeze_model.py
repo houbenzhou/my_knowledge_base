@@ -29,7 +29,7 @@ from tensorflow.python.saved_model.signature_def_utils_impl import predict_signa
 from tensorflow.python.saved_model import builder as saved_model_builder
 
 
-def freeze_model(input_checkpoint, net, output_graph, num_category):
+def freeze_model(input_checkpoint, net, output_graph, num_category,anchor_scales,anchor_ratios):
     """
         模型文件转换，将训练得到的ckpt格式的模型文件转化为用以iobjectspy组件的产品
 
@@ -56,9 +56,9 @@ def freeze_model(input_checkpoint, net, output_graph, num_category):
     # init session
     sess = tf.Session(config=tfconfig)
     # load network
-    net = resnetv1(num_layers=101)
+    # net = resnetv1(num_layers=101)
     net.create_architecture("TEST", num_category + 1,
-                            tag='default', anchor_scales=[8, 16, 32])
+                            tag='default', anchor_scales=[4, 8, 16, 32], anchor_ratios=(0.25, 0.5, 1, 2, 4))
     output_node_names = "resnet_v1_101_5/cls_score/BiasAdd,resnet_v1_101_5/cls_prob,resnet_v1_101_5/bbox_pred/BiasAdd,resnet_v1_101_3/rois/concat"
     output_graph_temp = output_graph + "temp.pb"
     saver = tf.train.Saver()

@@ -33,11 +33,11 @@ def example_train():
     """
     利用VOC数据集训练模型文件.
     """
-    epoch = 1000
+    epoch = 1
     batch_size = 1
     lr = 0.001,
 
-    train_data_path = '/home/data/hou/workspaces/iobjectspy/resources_ml/out/VOC'
+    train_data_path = '/home/data/hou/workspaces/iobjectspy/resources_ml/example/项目/中南勘测院/out/2020-04-13_/光3_512_modify_1_3/VOC'
     log_path = os.path.join(curr_dir, 'out', 'log')
     output_model_path = os.path.join(curr_dir, 'out', 'model')
     output_model_name = 'saved_model'

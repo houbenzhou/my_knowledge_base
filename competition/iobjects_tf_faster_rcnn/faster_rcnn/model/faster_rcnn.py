@@ -139,10 +139,12 @@ def train(train_data_path, config, epoch, batch_size, lr,
               backbone_weight_path,
               max_iters)
     tf.reset_default_graph()
+    anchor_scales = config.get("trainer").get('ANCHOR_SCALES')
+    anchor_ratios = config.get("trainer").get('ANCHOR_RATIOS')
 
     # 将最后一个ckpt格式的模型转换为pb格式的模型文件
     freeze_model(os.path.join(ckpt_model_path, output_model_name_ckpt), net, pb_model_path,
-                 len(voc_config.dataset.get('classes')) - 1)
+                 len(voc_config.dataset.get('classes')) - 1, anchor_scales, anchor_ratios)
     # pb模型配置文件
     # 拼接字符串的方式获取目录名称
     # pb_yml_name = pb_model_path.split("/")[-1]
