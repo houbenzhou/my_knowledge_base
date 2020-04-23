@@ -4,7 +4,7 @@ import time
 import yaml
 from dotmap import DotMap
 from faster_rcnn.model import faster_rcnn
-
+from easydict import EasyDict as edict
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 backbone_weight_path = '/home/data/hou/workspaces/iobjectspy/resources_ml/backbone/res101.ckpt'
 
@@ -22,7 +22,7 @@ def get_config_from_yaml(yaml_file, encoding='utf8'):
     """
     with open(yaml_file, encoding=encoding) as f:
         config_dict = yaml.load(f, Loader=yaml.FullLoader)
-    config = DotMap(config_dict)
+    config = edict(config_dict)
     return config
 
 
