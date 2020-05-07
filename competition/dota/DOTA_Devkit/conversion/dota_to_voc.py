@@ -120,11 +120,7 @@ def create_annotation(path_images, path_label, categorys, tile_size, tile_offset
         width, height = img.size
         channel = 3
         # 获取label路径，用于获取bbox以及类名
-
-        label_name = pic_name.split('.')
-        if label_name[-1] == "png":
-            label_name[-1]='txt'
-            label_name = str.join(".", label_name)
+        label_name = pic_name.split('.')[0] + '.txt'
         lists = []
         label_path = os.path.join(path_label, label_name)
         file = open(label_path, "r", encoding="utf-8", errors="ignore")
@@ -283,35 +279,25 @@ def _save_index_file(output_path_main, output_path_img):
 def create_images(path, voc_labels_path, out_path):
     if not os.path.exists(out_path):
         os.makedirs(out_path)
-    label_names = os.listdir(voc_labels_path)
+    pic_names = os.listdir(voc_labels_path)
 
-    for label_name in label_names:
-
-        pic_name = label_name.split('.')
-        if pic_name[-1] == "xml":
-            pic_name[-1]='png'
-            pic_name = str.join(".", pic_name)
-        voc_pic_name = label_name.split('.')
-        if voc_pic_name[-1] == "xml":
-            voc_pic_name[-1] = 'jpg'
-            voc_pic_name = str.join(".", voc_pic_name)
-        im = Image.open(os.path.join(path, pic_name))
+    for pic_name in pic_names:
+        print(pic_name)
+        train = pic_name.split(".")[0]
+        im = Image.open(os.path.join(path, train + ".png"))
         bg = Image.new("RGB", im.size, (255, 255, 255))
         bg.paste(im)
-
-        bg.save(out_path + "/" + voc_pic_name)
+        bg.save(out_path + "/" + train + ".jpg")
 
 
 if __name__ == '__main__':
     # input_path = '/home/data/windowdata/data/dota/dotav1/train'
     # voc_path = '/home/data/windowdata/data/dota/dotav1/voc'
-    # input_path = '/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800'
-    # voc_path = '/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/VOC'
-    input_path = '/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800_gsd'
-    voc_path = '/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800_gsd/VOC'
+    input_path = '/home/data/windowdata/data/dota/dotav2/dotav2/splite_train'
+    voc_path = '/home/data/windowdata/data/dota/dotav2/dotav2/voc'
     category = None
-    tile_size = 800
-    tile_offset = 400
+    tile_size = 1024
+    tile_offset = 512
     path_images = os.path.join(input_path, "images")
     path_label = os.path.join(input_path, "labelTxt")
     voc_labels_path = os.path.join(voc_path, "Annotations")

@@ -64,9 +64,6 @@ def visual_object_detection_voc(voc_path, out_path):
         for ob in root.iter('object'):
             for name in ob.iter('name'):
                 rect['name'] = name.text
-            for difficult in ob.iter('difficult'):
-                rect['difficult'] = int(difficult.text)
-            # if rect['difficult'] ==0:
             for bndbox in ob.iter('bndbox'):
                 for xmin in bndbox.iter('xmin'):
                     rect['xmin'] = float(xmin.text)
@@ -76,7 +73,6 @@ def visual_object_detection_voc(voc_path, out_path):
                     rect['xmax'] = float(xmax.text)
                 for ymax in bndbox.iter('ymax'):
                     rect['ymax'] = float(ymax.text)
-
                 draw.line((rect['xmin'], rect['ymin'], rect['xmax'], rect['ymin']), fill=(255, 0, 0), width=4)
                 draw.line((rect['xmax'], rect['ymin'], rect['xmax'], rect['ymax']), fill=(255, 0, 0), width=4)
                 draw.line((rect['xmax'], rect['ymax'], rect['xmin'], rect['ymax']), fill=(255, 0, 0), width=4)
@@ -88,9 +84,9 @@ def visual_object_detection_voc(voc_path, out_path):
 if __name__ == '__main__':
 
 
-    voc_path = '/home/data/hou/workspaces/iobjectspy/resources_ml/example/项目/中南勘测院/out/2020-04-27/800_collection_100_anchor_0.25_1_4_scale_3_/VOC'
+    voc_path = '/home/data/hou/workspaces/iobjectspy/resources_ml/example/项目/中南勘测院/out/2020-04-14/光3_train_test/VOC'
 
-    out_path = '/home/data/windowdata/temp/visual'
+    out_path = '/home/data/temp/visual'
 
     visual_object_detection_voc(voc_path, out_path)
 
