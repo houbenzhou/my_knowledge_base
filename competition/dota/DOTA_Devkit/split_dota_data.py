@@ -1,12 +1,13 @@
-import os
 import codecs
-import numpy as np
-import math
-from dota_utils_gsd import GetFileFromThisRootDir
-import cv2
-import shapely.geometry as shgeo
-import dota_utils_gsd as util
 import copy
+import math
+import os
+
+import cv2
+import dota_utils_gsd as util
+import numpy as np
+import shapely.geometry as shgeo
+from dota_utils_gsd import GetFileFromThisRootDir
 
 
 def choose_best_pointorder_fit_another(poly1, poly2):
@@ -197,7 +198,19 @@ class splitbase():
         if np.shape(img) == ():
             return
         fullname = os.path.join(self.labelpath, name + '.txt')
-        objects = util.parse_dota_poly2(fullname)
+        objects, gsd = util.parse_dota_poly2(fullname)
+
+        try:
+            gsd = float(gsd)
+            rate = math.sqrt(gsd / 0.13)
+        except:
+            rate = 1
+            print(fullname)
+        if rate <= 1:
+            rate = 1
+        if rate >= 2:
+            rate = 2
+        # if rate
         for obj in objects:
             obj['poly'] = list(map(lambda x: rate * x, obj['poly']))
             # obj['poly'] = list(map(lambda x: ([2 * y for y in x]), obj['poly']))
@@ -244,9 +257,9 @@ class splitbase():
 
 if __name__ == '__main__':
     # example usage of ImgSplit
-    split = splitbase(r'data/example',
-                      r'data/example_train', code='utf-8',
+    split = splitbase(r'/home/data/windowdata/data/dota/dotav1/dotav1/train_val',
+                      r'/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800_gsd', code='utf-8',
                       gap=100,
-                      subsize=2000,
+                      subsize=800,
                       thresh=0.7)
     split.splitdata(1)

@@ -53,7 +53,7 @@ def plane_detection(input_data, category_name, model_path, out_data, out_dataset
         if os.path.isdir(input_data):
             run_prediction = FasterRCNNEstimation(model_path, config_file)
             run_prediction.estimation_dir(input_data, category_name,
-                                          out_data, out_dataset_name,
+                                          out_data,
                                           nms_thresh,
                                           score_thresh)
 
@@ -67,9 +67,9 @@ def plane_detection(input_data, category_name, model_path, out_data, out_dataset
 
 if __name__ == '__main__':
     curr_dir = os.path.dirname(os.path.abspath(__file__))
-    input_data = '/home/data/hou/workspaces/iobjectspy/resources_ml/example_data/training/plane.tif'
-    model_path = '/home/data/hou/workspaces/iobjectspy/resources_ml/model/obj_det_plane/obj_det_plane.sdm'
-    out_data = os.path.join(curr_dir, 'out')
+    input_data = '/home/data/hou/workspaces/my_knowledge_base/competition/iobjects_tf_faster_rcnn/out/dotav21/images'
+    model_path = '/home/data/hou/workspaces/my_knowledge_base/competition/iobjects_tf_faster_rcnn/out/2020-05-07/1024_s600/saved_model/saved_model.sdm'
+    out_data = os.path.join(curr_dir, 'out', '2020-05-07', '1024_s600', 'labelTxt')
     out_name = 'plane'
     category_name = None
     if not os.path.exists(out_data):

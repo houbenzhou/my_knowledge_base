@@ -52,7 +52,7 @@ def parse_dota_poly(filename):
     elif (sys.version_info >= 2.7):
         fd = codecs.open(filename, 'r')
         f = fd
-    # count = 0
+    gsd=1
     while True:
         line = f.readline()
         # count = count + 1
@@ -60,6 +60,8 @@ def parse_dota_poly(filename):
         #     continue
         if line:
             splitlines = line.strip().split(' ')
+            if splitlines[0].split(":")[0]=='gsd':
+                gsd=splitlines[0].split(":")[1]
             object_struct = {}
             ### clear the wrong name after check all the data
             #if (len(splitlines) >= 9) and (splitlines[8] in classname):
@@ -94,18 +96,18 @@ def parse_dota_poly(filename):
             objects.append(object_struct)
         else:
             break
-    return objects
+    return objects , gsd
 
 def parse_dota_poly2(filename):
     """
         parse the dota ground truth in the format:
         [x1, y1, x2, y2, x3, y3, x4, y4]
     """
-    objects = parse_dota_poly(filename)
+    objects,gsd = parse_dota_poly(filename)
     for obj in objects:
         obj['poly'] = TuplePoly2Poly(obj['poly'])
         obj['poly'] = list(map(int, obj['poly']))
-    return objects
+    return objects ,gsd
 
 def parse_dota_rec(filename):
     """
