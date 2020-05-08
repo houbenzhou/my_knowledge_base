@@ -1,3 +1,4 @@
+import argparse
 import os
 from collections import OrderedDict
 
@@ -302,23 +303,52 @@ def create_images(path, voc_labels_path, out_path):
 
         bg.save(out_path + "/" + voc_pic_name)
 
+def get_parser():
+    parser = argparse.ArgumentParser(description="split dota")
+    parser.add_argument(
+        "--input_dota_path",
+        default="/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800_gsd",
+        help="Base path for dota data",
+    )
 
+    parser.add_argument(
+        "--out_voc_path",
+        default='/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800_gsd/VOC1',
+        help="Output base path for dota data",
+    )
+    parser.add_argument(
+        "--category",
+        default=None,
+        help="Output base path for dota data",
+    )
+    parser.add_argument(
+        "--tile_size",
+        type=int,
+        default=800,
+        help="overrlap between two patches ",
+    )
+    parser.add_argument(
+        "--tile_offset",
+        type=int,
+        default=400,
+        help="subsize of patch ",
+    )
+
+
+    return parser
 if __name__ == '__main__':
-    # input_path = '/home/data/windowdata/data/dota/dotav1/train'
-    # voc_path = '/home/data/windowdata/data/dota/dotav1/voc'
-    # input_path = '/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800'
-    # voc_path = '/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/VOC'
-    input_path = '/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800_gsd'
-    voc_path = '/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800_gsd/VOC'
-    category = None
-    tile_size = 800
-    tile_offset = 400
-    path_images = os.path.join(input_path, "images")
-    path_label = os.path.join(input_path, "labelTxt")
-    voc_labels_path = os.path.join(voc_path, "Annotations")
-    voc_images_path = os.path.join(voc_path, "Images")
-    voc_main_path = os.path.join(voc_path, "ImageSets", "Main")
-    sda_path = os.path.join(voc_path, "VOC.sda")
+    args = get_parser().parse_args()
+    input_dota_path =args.input_dota_path
+    out_voc_path =args.out_voc_path
+    category = args.category
+    tile_size = args.tile_size
+    tile_offset = args.tile_offset
+    path_images = os.path.join(input_dota_path, "images")
+    path_label = os.path.join(input_dota_path, "labelTxt")
+    voc_labels_path = os.path.join(out_voc_path, "Annotations")
+    voc_images_path = os.path.join(out_voc_path, "Images")
+    voc_main_path = os.path.join(out_voc_path, "ImageSets", "Main")
+    sda_path = os.path.join(out_voc_path, "VOC.sda")
     # 生成VOC的标签数据
     create_annotation(path_images, path_label, category, tile_size, tile_offset, voc_labels_path, sda_path)
     # 生成VOC的图像数据
