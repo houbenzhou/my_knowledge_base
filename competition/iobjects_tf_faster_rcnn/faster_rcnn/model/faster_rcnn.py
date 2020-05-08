@@ -135,10 +135,10 @@ def train(train_data_path, config, epoch, batch_size, lr,
     output_model_name_ckpt = output_model_name + ".ckpt"
 
     # 训练ckpt模型格式的模型
-    # train_net(net, imdb, roidb, valroidb, pretrained_model_path, ckpt_model_path, output_model_name_ckpt, tb_dir,
-    #           backbone_weight_path,
-    #           max_iters)
-    # tf.reset_default_graph()
+    train_net(net, imdb, roidb, valroidb, pretrained_model_path, ckpt_model_path, output_model_name_ckpt, tb_dir,
+              backbone_weight_path,
+              max_iters)
+    tf.reset_default_graph()
     anchor_scales = config.get("trainer").get('ANCHOR_SCALES')
     anchor_ratios = config.get("trainer").get('ANCHOR_RATIOS')
 
