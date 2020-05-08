@@ -53,7 +53,7 @@ def plane_detection(input_data, category_name, model_path, out_data, out_dataset
         if os.path.isdir(input_data):
             run_prediction = FasterRCNNEstimation(model_path, config_file)
             run_prediction.estimation_dir(input_data, category_name,
-                                          out_data, out_dataset_name,
+                                          out_data,
                                           nms_thresh,
                                           score_thresh)
 
