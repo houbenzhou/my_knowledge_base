@@ -16,6 +16,8 @@ def eval_objects_width_height(xml_paths, object_width_height_txt):
         root = tree.getroot()
         for name in root.iter('path'):
             rect['path'] = name.text
+        for difficult in ob.iter('difficult'):
+            rect['difficult'] = int(difficult.text)
         for ob in root.iter('object'):
             for bndbox in ob.iter('bndbox'):
                 for xmin in bndbox.iter('xmin'):
@@ -53,7 +55,7 @@ def visual_object_detection_voc(voc_path, out_path):
     for xml_name in xml_path_:
         # 获取图片路径，用于获取图像大小以及通道数
         xml_pth = os.path.join(voc_xml, xml_name)
-        img_name = xml_name.split(".")[0] + ".jpg"
+        img_name = str(xml_name.replace('xml', 'jpg'))
         img_pth = os.path.join(voc_img, img_name)
 
         img = Image.open(img_pth)

@@ -55,7 +55,7 @@ def visual_object_detection_voc(voc_path, out_path):
     for xml_name in xml_path_:
         # 获取图片路径，用于获取图像大小以及通道数
         xml_pth = os.path.join(voc_xml, xml_name)
-        img_name = xml_name.split(".")[0] + ".jpg"
+        img_name = str(xml_name.replace('xml', 'jpg'))
         img_pth = os.path.join(voc_img, img_name)
 
         img = Image.open(img_pth)
@@ -84,16 +84,8 @@ def visual_object_detection_voc(voc_path, out_path):
 
 
 if __name__ == '__main__':
-    # plane_1024
-    # voc_path = '/home/data/windowdata/data/rssrai2019_hou/1024/VOC'
-    # out_path = '/home/data/windowdata/temp/visual2'
-    # large-vehicle 1024
-    # voc_path = '/home/data/windowdata/data/rssrai2019_hou/1024/large-vehicle/VOC'
-    # out_path = '/home/data/windowdata/temp/visual3'
-    # plane 1024
-    voc_path = '/home/data/hou/workspaces/iobjectspy/resources_ml/out/iobjectspy_voc'
+
+    voc_path = '/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800_gsd/VOC'
     out_path = '/home/data/windowdata/temp/visual'
-    # large-vehicle 1024
-    # voc_path = '/home/data/windowdata/data/rssrai2019_hou/600/large-vehicle/VOC'
-    # out_path = '/home/data/windowdata/temp/visual5'
+
     visual_object_detection_voc(voc_path, out_path)
