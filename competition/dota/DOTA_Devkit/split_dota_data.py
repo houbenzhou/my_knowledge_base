@@ -1,12 +1,14 @@
-import os
+import argparse
 import codecs
-import numpy as np
-import math
-from dota_utils_gsd import GetFileFromThisRootDir
-import cv2
-import shapely.geometry as shgeo
-import dota_utils_gsd as util
 import copy
+import math
+import os
+
+import cv2
+import dota_utils_gsd as util
+import numpy as np
+import shapely.geometry as shgeo
+from dota_utils_gsd import GetFileFromThisRootDir
 
 
 def choose_best_pointorder_fit_another(poly1, poly2):
@@ -198,17 +200,19 @@ class splitbase():
             return
         fullname = os.path.join(self.labelpath, name + '.txt')
         objects, gsd = util.parse_dota_poly2(fullname)
-
-        try:
-            gsd = float(gsd)
-            rate = math.sqrt(gsd / 0.13)
-        except:
-            rate = 1
-            print(fullname)
-        if rate <= 1:
-            rate = 1
-        if rate >= 2:
-            rate = 2
+        if rate is None:
+            try:
+                gsd = float(gsd)
+                rate = math.sqrt(gsd / 0.13)
+            except:
+                rate = 1
+                print(fullname)
+            if rate <= 1:
+                rate = 1
+            if rate >= 2:
+                rate = 2
+        else:
+            rate  = float(rate)
         # if rate
         for obj in objects:
             obj['poly'] = list(map(lambda x: rate * x, obj['poly']))
@@ -254,11 +258,59 @@ class splitbase():
             self.SplitSingle(name, rate, self.ext)
 
 
+def get_parser():
+    parser = argparse.ArgumentParser(description="split dota")
+    parser.add_argument(
+        "--input_path",
+        default="/home/data/windowdata/data/dota/dotav1/dotav1/train_val",
+        help="Base path for dota data",
+    )
+
+    parser.add_argument(
+        "--out_path",
+        default='/home/data/windowdata/data/dota/dotav1/dotav1/train_val/test',
+        help="Output base path for dota data",
+    )
+
+    parser.add_argument(
+        "--gap",
+        type=int,
+        default=100,
+        help="overrlap between two patches ",
+    )
+    parser.add_argument(
+        "--subsize",
+        type=int,
+        default=800,
+        help="subsize of patch ",
+    )
+    parser.add_argument(
+        "--thresh",
+        type=float,
+        default=0.7,
+        help="The threshold determine whether to keep the instance if the instance is cut down in the process of split",
+    )
+    parser.add_argument(
+        "--rate",
+        default=1,
+        help="resize rate before cut ",
+    )
+
+    return parser
+
+
 if __name__ == '__main__':
+    args = get_parser().parse_args()
+    input_path = args.input_path
+    out_path = args.out_path
+    gap = args.gap
+    subsize = args.subsize
+    thresh = args.thresh
+    rate = args.rate
     # example usage of ImgSplit
-    split = splitbase(r'data/example',
-                      r'data/example_train', code='utf-8',
-                      gap=100,
-                      subsize=2000,
-                      thresh=0.7)
-    split.splitdata(1)
+    split = splitbase(input_path,
+                      out_path, code='utf-8',
+                      gap=gap,
+                      subsize=subsize,
+                      thresh=thresh)
+    split.splitdata(rate)
