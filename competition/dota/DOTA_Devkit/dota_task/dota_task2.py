@@ -1,3 +1,4 @@
+import argparse
 import os
 import shutil
 from typing import re
@@ -28,7 +29,7 @@ def _create_dota_task2(input_data, out_file, categoty):
                 categoty_from_list = str(label_file_list[0])
                 if categoty_from_list == categoty:
                     outline = pic_name + ' ' + str(score) + ' ' + xmin + ' ' + ymin + ' ' + xmax + ' ' + ymax
-                    file_out.write(outline )
+                    file_out.write(outline)
 
 
 def create_dota_task2(input_data, out_path, categotys):
@@ -56,12 +57,36 @@ def create_dota_task2(input_data, out_path, categotys):
         _create_dota_task2(input_data, out_file, categoty)
 
 
+def get_parser():
+    parser = argparse.ArgumentParser(description="tf_faster_rcnn infer")
+    parser.add_argument(
+        "--input_path",
+        default="/home/data/hou/workspaces/my_knowledge_base/competition/dota/out/2020-05-08/1024_s800_4_8_16_32/labelTxt",
+        help="A file or directory of input data",
+    )
+
+    parser.add_argument(
+        "--out_path",
+        default='/home/data/hou/workspaces/my_knowledge_base/competition/dota/DOTA_Devkit/out/task2',
+        help="A directory to save the output inference file. ",
+    )
+
+    parser.add_argument(
+        "--categotys",
+        default='/home/data/hou/workspaces/my_knowledge_base/competition/iobjects_tf_faster_rcnn/out/2020-05-07/1024_s600/saved_model/saved_model.sdm',
+        help="The name of the category you want to predict",
+    )
+
+    return parser
+
+
 if __name__ == '__main__':
-    input_data = '/home/data/hou/workspaces/iobjectspy/resources_ml/example/competition/dotav2/test/images/labelTxt'
-    out_path = '/home/data/hou/workspaces/my_knowledge_base/competition/dota/DOTA_Devkit/out'
+    args = get_parser().parse_args()
+    input_path = args.input_path
+    out_path = args.out_path
     if os.path.exists(out_path):
         shutil.rmtree(out_path)
     if not os.path.exists(out_path):
         os.mkdir(out_path)
-    categotys = '/home/data/hou/workspaces/iobjectspy/resources_ml/example/competition/saved_model_10/saved_model_10.sdm'
-    create_dota_task2(input_data, out_path, categotys)
+    categotys = args.categotys
+    create_dota_task2(input_path, out_path, categotys)
