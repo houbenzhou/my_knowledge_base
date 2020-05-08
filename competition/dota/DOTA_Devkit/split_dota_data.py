@@ -197,7 +197,19 @@ class splitbase():
         if np.shape(img) == ():
             return
         fullname = os.path.join(self.labelpath, name + '.txt')
-        objects = util.parse_dota_poly2(fullname)
+        objects, gsd = util.parse_dota_poly2(fullname)
+
+        try:
+            gsd = float(gsd)
+            rate = math.sqrt(gsd / 0.13)
+        except:
+            rate = 1
+            print(fullname)
+        if rate <= 1:
+            rate = 1
+        if rate >= 2:
+            rate = 2
+        # if rate
         for obj in objects:
             obj['poly'] = list(map(lambda x: rate * x, obj['poly']))
             # obj['poly'] = list(map(lambda x: ([2 * y for y in x]), obj['poly']))
