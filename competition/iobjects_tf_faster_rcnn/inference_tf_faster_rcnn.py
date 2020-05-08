@@ -1,3 +1,4 @@
+import argparse
 import os
 import re
 
@@ -65,16 +66,65 @@ def plane_detection(input_data, category_name, model_path, out_data, out_dataset
                                           score_thresh)
 
 
+def get_parser():
+    parser = argparse.ArgumentParser(description="tf_faster_rcnn infer")
+    parser.add_argument(
+        "--input_data",
+        default="/home/data/hou/workspaces/my_knowledge_base/competition/iobjects_tf_faster_rcnn/out/dotav21/images",
+        help="A file or directory of input data",
+    )
+
+    parser.add_argument(
+        "--model_path",
+        default='/home/data/hou/workspaces/my_knowledge_base/competition/iobjects_tf_faster_rcnn/out/2020-05-08/1024_s800_4_8_16_32/saved_model/saved_model.sdm',
+        help="A file of model path",
+    )
+
+    parser.add_argument(
+        "--out_data",
+        default='/home/data/hou/workspaces/my_knowledge_base/competition/iobjects_tf_faster_rcnn/out/2020-05-08/1024_s800_4_8_16_32/11',
+        help="A directory to save the output inference file. ",
+    )
+    parser.add_argument(
+        "--out_name",
+        default='plane',
+        help="When input_data is a file,out_name is the name of the txt file ",
+    )
+    parser.add_argument(
+        "--category_name",
+        default=None,
+        help="The name of the category you want to predict",
+    )
+    parser.add_argument(
+        "--nms_thresh",
+        type=float,
+        default=0.3,
+        help="The threshold of nms,used to deal with the problem of target overlap",
+    )
+    parser.add_argument(
+        "--score_thresh",
+        type=float,
+        default=0.3,
+        help="The threshold of score,used to filter low score targets ",
+    )
+
+    return parser
+
+
 if __name__ == '__main__':
     curr_dir = os.path.dirname(os.path.abspath(__file__))
-    input_data = '/home/data/hou/workspaces/iobjectspy/resources_ml/example_data/training/plane.tif'
-    model_path = '/home/data/hou/workspaces/iobjectspy/resources_ml/model/obj_det_plane/obj_det_plane.sdm'
-    out_data = os.path.join(curr_dir, 'out')
-    out_name = 'plane'
-    category_name = None
+    args = get_parser().parse_args()
+
+    input_data = args.input_data
+    model_path = args.model_path
+    out_data = args.out_data
+    out_name = args.out_name
+    category_name = args.category_name
+    nms_thresh = args.nms_thresh
+    score_thresh = args.score_thresh
     if not os.path.exists(out_data):
         os.makedirs(out_data)
     # 基于影像文件进行飞机目标检测
     plane_detection(input_data, category_name, model_path, out_data, out_name,
-                    nms_thresh=0.3,
-                    score_thresh=0.3)
+                    nms_thresh=nms_thresh,
+                    score_thresh=score_thresh)
