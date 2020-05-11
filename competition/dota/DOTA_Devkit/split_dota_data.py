@@ -293,7 +293,6 @@ def get_parser():
     )
     parser.add_argument(
         "--rate",
-        default=1,
         help="resize rate before cut ",
     )
 
