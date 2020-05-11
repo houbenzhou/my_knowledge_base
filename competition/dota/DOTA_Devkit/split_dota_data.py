@@ -222,6 +222,7 @@ class splitbase():
             resizeimg = cv2.resize(img, None, fx=rate, fy=rate, interpolation=cv2.INTER_CUBIC)
         else:
             resizeimg = img
+        rate=int(rate)
         outbasename = name + '__' + str(rate) + '__'
         weight = np.shape(resizeimg)[1]
         height = np.shape(resizeimg)[0]
