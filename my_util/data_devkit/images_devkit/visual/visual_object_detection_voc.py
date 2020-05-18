@@ -1,3 +1,4 @@
+import argparse
 import os
 import shutil
 import xml.etree.ElementTree as ET
@@ -37,15 +38,15 @@ def eval_objects_width_height(xml_paths, object_width_height_txt):
             object_width_height_txt.write(line + '\n')
 
 
-def visual_object_detection_voc(voc_path, out_path):
+def visual_object_detection_voc(img_path, label_path, out_path):
     """
     可视化voc数据集
     :param voc_path:
     :param out_path:
     :return:
     """
-    voc_xml = os.path.join(voc_path, 'Annotations')
-    voc_img = os.path.join(voc_path, 'Images')
+    voc_xml = label_path
+    voc_img = img_path
     xml_path_ = os.listdir(voc_xml)
     if os.path.exists(out_path):
         shutil.rmtree(out_path)
@@ -82,10 +83,37 @@ def visual_object_detection_voc(voc_path, out_path):
                 draw.text((rect['xmin'], rect['ymin'] - 44), rect['name'], fill="#0000ff")
         img.save(os.path.join(out_path, img_name))
 
+def get_parser():
+    parser = argparse.ArgumentParser(description="dota test visual")
+    parser.add_argument(
+        "--img_path",
+        default="/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800_gsd/VOC/Images",
+        help="image data path",
+    )
 
+    parser.add_argument(
+        "--label_path",
+        default='/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800_gsd/VOC/Annotations',
+        help="label path ",
+    )
+
+    parser.add_argument(
+        "--out_path",
+        default='/home/data/windowdata/temp/visual_voc',
+        help="A directory to save the output images . ",
+    )
+
+    return parser
 if __name__ == '__main__':
+    args = get_parser().parse_args()
+    img_path = args.img_path
+    label_path = args.label_path
+    out_path = args.out_path
+    if os.path.exists(out_path):
+        shutil.rmtree(out_path)
+    if not os.path.exists(out_path):
+        os.mkdir(out_path)
 
-    voc_path = '/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800_gsd/VOC'
-    out_path = '/home/data/windowdata/temp/visual'
 
-    visual_object_detection_voc(voc_path, out_path)
+
+    visual_object_detection_voc(img_path, label_path, out_path)
