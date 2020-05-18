@@ -1,18 +1,18 @@
+import argparse
 import os
 import shutil
 
 from PIL import Image, ImageDraw
 
 
-def visual_dota(input_data, out_path):
+def visual_dota(img_path, label_path, out_path):
     """
     可视化voc数据集
-    :param voc_path:
+    :param img_path:
+    :param label_path:
     :param out_path:
     :return:
     """
-    img_path = os.path.join(input_data, 'images')
-    label_path = os.path.join(input_data, 'labelTxt')
     label_names = os.listdir(label_path)
 
     for label_name in label_names:
@@ -47,12 +47,37 @@ def visual_dota(input_data, out_path):
         img.save(os.path.join(out_path, img_name))
 
 
+def get_parser():
+    parser = argparse.ArgumentParser(description="dota test visual")
+    parser.add_argument(
+        "--img_path",
+        default="/home/data/hou/workspaces/my_knowledge_base/competition/dota/dotav1_test/images",
+        help="image data path",
+    )
+
+    parser.add_argument(
+        "--label_path",
+        default='/home/data/hou/workspaces/my_knowledge_base/competition/dota/dotav1_test/labelTxt',
+        help="label path ",
+    )
+
+    parser.add_argument(
+        "--out_path",
+        default='/home/data/windowdata/temp/visual_dota_test',
+        help="A directory to save the output images . ",
+    )
+
+    return parser
+
+
 if __name__ == '__main__':
-    input_data = '/home/data/hou/workspaces/iobjectspy/resources_ml/example/competition/dotav2/test/images'
-    out_path = '/home/data/windowdata/temp/visual_dota测试集可视化'
+    args = get_parser().parse_args()
+    img_path = args.img_path
+    label_path = args.label_path
+    out_path = args.out_path
     if os.path.exists(out_path):
         shutil.rmtree(out_path)
     if not os.path.exists(out_path):
         os.mkdir(out_path)
 
-    visual_dota(input_data, out_path)
+    visual_dota(img_path, label_path, out_path)
