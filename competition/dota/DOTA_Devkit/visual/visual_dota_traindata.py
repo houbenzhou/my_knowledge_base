@@ -1,18 +1,17 @@
+import argparse
 import os
 import shutil
 
 from PIL import Image, ImageDraw
 
 
-def visual_dota(input_data, out_path):
+def visual_dota(img_path, label_path, out_path):
     """
     可视化voc数据集
     :param input_data
     :param out_path
     :return:
     """
-    img_path = os.path.join(input_data, 'images')
-    label_path = os.path.join(input_data, 'labelTxt')
     label_names = os.listdir(label_path)
 
     for label_name in label_names:
@@ -54,13 +53,36 @@ def visual_dota(input_data, out_path):
                 draw.text((xmin, ymin - 44), categoty, fill="#0000ff")
         img.save(os.path.join(out_path, img_name))
 
+def get_parser():
+    parser = argparse.ArgumentParser(description="dota test visual")
+    parser.add_argument(
+        "--img_path",
+        default="/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/images",
+        help="image data path",
+    )
+
+    parser.add_argument(
+        "--label_path",
+        default='/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/labelTxt',
+        help="label path ",
+    )
+
+    parser.add_argument(
+        "--out_path",
+        default='/home/data/windowdata/temp/visual_dota_train',
+        help="A directory to save the output images . ",
+    )
+
+    return parser
 
 if __name__ == '__main__':
-    input_data = '/home/data/hou/workspaces/my_knowledge_base/competition/dota/DOTA_Devkit/example'
-    out_path = '/home/data/windowdata/temp/visual_dota训练集可视化'
+    args = get_parser().parse_args()
+    img_path = args.img_path
+    label_path = args.label_path
+    out_path = args.out_path
     if os.path.exists(out_path):
         shutil.rmtree(out_path)
     if not os.path.exists(out_path):
         os.mkdir(out_path)
 
-    visual_dota(input_data, out_path)
+    visual_dota(img_path, label_path, out_path)
