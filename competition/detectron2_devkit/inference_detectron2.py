@@ -184,9 +184,9 @@ def _get_bbox(ds, j, i, blocksize, tile_offset, predictor,
 
         if ds.crs is None:
             xmin = round(float(pred_boxes[cls_ind][0]), 4) + block_xmin
-            ymin = (round(float(pred_boxes[cls_ind][3]), 4) + block_ymin)
+            ymin = (round(float(pred_boxes[cls_ind][1]), 4) + block_ymin)
             xmax = round(float(pred_boxes[cls_ind][2]), 4) + block_xmin
-            ymax = (round(float(pred_boxes[cls_ind][1]), 4) + block_ymin)
+            ymax = (round(float(pred_boxes[cls_ind][3]), 4) + block_ymin)
             score_single_bbox = round(float(scores[cls_ind]), 4)
         else:
             coord_min = transform.xy(transf, pred_boxes[cls_ind][1] + float(block_ymin),
