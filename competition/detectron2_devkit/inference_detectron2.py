@@ -1,15 +1,12 @@
 import argparse
 import os
-import random
 
 import numpy as np
 import rasterio
+from detectron2.utils.logger import setup_logger
 from iobjectspy_tools import register_all_pascal_voc, get_classname, get_class_num
-from numpy import linspace
 from rasterio.plot import reshape_as_image
 from rasterio.windows import Window, transform
-
-from detectron2.utils.logger import setup_logger
 
 setup_logger()
 
@@ -23,7 +20,8 @@ from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
 
 
-def inference_detectron2(train_data_path, train_config_path, image_path, register_val_name, model_path, outpath):
+def inference_detectron2(train_data_path, train_config_path, image_path, tile_size, tile_offset_size, register_val_name,
+                         model_path, outpath):
     cfg = get_cfg()
     cfg.merge_from_file(train_config_path)
     cfg.DATALOADER.NUM_WORKERS = 2
@@ -31,20 +29,23 @@ def inference_detectron2(train_data_path, train_config_path, image_path, registe
     cfg.SOLVER.MAX_ITER = 300  # 300 iterations seems good enough, but you can certainly train longer
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128  # faster, and good enough for this toy dataset
     num_class = get_class_num(train_data_path)
+    category_name = get_classname(train_data_path)
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = num_class  # get classes from sda
 
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
     cfg.DATASETS.TEST = (register_val_name,)
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7
+    cfg.MODEL.RETINANET.NMS_THRESH_TEST = 0.7
+    cfg.MODEL.RETINANET.SCORE_THRESH_TEST = 0.05
     predictor = DefaultPredictor(cfg)
 
     pic_names = os.listdir(image_path)
     for d in pic_names:
         _estimation_img(os.path.join(image_path, d), os.path.join(outpath, str(d).split('.')[0] + ".txt"),
-                        str(d).split('.')[0], 600, 300, predictor)
+                        str(d).split('.')[0], tile_size, tile_offset_size, predictor, category_name)
 
 
-def _estimation_img(input_data, out_data, out_name, blocksize, tile_offset, predictor, nms_thresh=0.3,
+def _estimation_img(input_data, out_data, out_name, blocksize, tile_offset, predictor, category_name, nms_thresh=0.3,
                     score_thresh=0.3):
     """
     进行影像数据目标检测
@@ -77,13 +78,15 @@ def _estimation_img(input_data, out_data, out_name, blocksize, tile_offset, pred
 
         # 对all_boxes中所有的框整体去重
         num_objects = 0
-        category_name = linspace(1, 16, 16)
+        # category_name = linspace(1, 16, 16)
         with open(out_data, 'a') as file_out:
             print(out_data)
             for cls_ind, cls in enumerate(category_name[0:]):
                 all_boxes_temp = []
                 for i in all_boxes:
-                    if str(int(cls)) == i[5]:
+                    if i[5] == str(14):
+                        print("--------------have ")
+                    if str(int(cls_ind)) == i[5]:
                         all_boxes_temp.append(i[0:5])
                 all_boxes_temp = np.array(all_boxes_temp)
                 if (all_boxes_temp != np.array([])):
@@ -91,7 +94,7 @@ def _estimation_img(input_data, out_data, out_name, blocksize, tile_offset, pred
                     all_boxes_temp = all_boxes_temp[keep, :]
                     num_objects = len(all_boxes_temp)
                 for bbox_sore in all_boxes_temp:
-                    outline = str(int(cls)) + ' ' + out_name + ' ' + str(bbox_sore[4]) + ' ' + str(
+                    outline = str(cls) + ' ' + out_name + ' ' + str(bbox_sore[4]) + ' ' + str(
                         bbox_sore[0]) + ' ' + str(
                         bbox_sore[1]) + ' ' + str(bbox_sore[2]) + ' ' + str(bbox_sore[3])
                     file_out.write(outline + '\n')
@@ -145,11 +148,6 @@ def _get_bbox(ds, j, i, blocksize, tile_offset, predictor,
 
     height = ds.height
     width = ds.width
-
-    # try:
-    #     one_pixel = ds.res[0]
-    # except:
-    #     one_pixel = 1
     block_xmin = j * tile_offset
     block_ymin = i * tile_offset
     if (j == -1) & (i == -1):
@@ -173,13 +171,14 @@ def _get_bbox(ds, j, i, blocksize, tile_offset, predictor,
     block = cv2.cvtColor(block, cv2.COLOR_RGB2BGR)
 
     outputs = predictor(block)
-    print(outputs["instances"].pred_classes)
-    print(outputs["instances"].pred_boxes)
+    #
+    # print(outputs["instances"].pred_classes)
+    # print(outputs["instances"].pred_boxes)
 
     pred_classes = outputs["instances"].pred_classes.to("cpu").numpy()
     scores = outputs["instances"].scores.to("cpu").numpy()
     pred_boxes = outputs["instances"].pred_boxes.to("cpu").tensor.numpy()
-    # # 遍历预测出的所有类别
+    # 遍历预测出的所有类别
     for cls_ind, cls in enumerate(pred_classes):
 
         if ds.crs is None:
@@ -205,6 +204,41 @@ def _get_bbox(ds, j, i, blocksize, tile_offset, predictor,
     return all_boxes
 
 
+# tree
+# def get_parser():
+#     parser = argparse.ArgumentParser(description="train detectron2")
+#     parser.add_argument(
+#         "--train_data_path",
+#         default="/home/data/hou/workspaces/iobjectspy2/resources_ml/example/项目/tree/out/voc",
+#         help="path to train data directory",
+#     )
+#
+#     parser.add_argument(
+#         "--train_config_path",
+#         default='/home/data/hou/workspaces/detectron2/configs/my_experiment/cascade_mask_rcnn_R_50_FPN_1x.yaml',
+#         help="path to config file",
+#     )
+#
+#     parser.add_argument(
+#         "--input_image_path",
+#         default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/out/2020_05_26/tree/test_helicopter/Images',
+#         help="path to input image data directory ",
+#     )
+#     parser.add_argument(
+#         "--model_path",
+#         default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/out/2020_05_26/tree/model/model_final.pth',
+#         help="path to model path directory ",
+#     )
+#     parser.add_argument(
+#         "--outpath",
+#         default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/out/2020_05_26/tree/test_helicopter/labelTxt',
+#         help="path to output directory ",
+#     )
+#
+#     return parser
+
+
+# dota
 def get_parser():
     parser = argparse.ArgumentParser(description="train detectron2")
     parser.add_argument(
@@ -225,13 +259,25 @@ def get_parser():
         help="path to input image data directory ",
     )
     parser.add_argument(
+        "--tile_size",
+        type=int,
+        default=800,
+        help="tile size ",
+    )
+    parser.add_argument(
+        "--tile_offset_size",
+        type=int,
+        default=400,
+        help="tile offset size ",
+    )
+    parser.add_argument(
         "--model_path",
-        default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/out/temp/model_final.pth',
+        default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/out/2020_05_26/dota/model/model_final.pth',
         help="path to model path directory ",
     )
     parser.add_argument(
         "--outpath",
-        default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/out/visual',
+        default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/out/2020_05_26/dota/test_helicopter/labelTxt',
         help="path to output directory ",
     )
 
@@ -245,6 +291,8 @@ if __name__ == '__main__':
     input_image_path = args.input_image_path
     model_path = args.model_path
     outpath = args.outpath
+    tile_size = args.tile_size
+    tile_offset_size = args.tile_offset_size
 
     if not os.path.exists(outpath):
         os.makedirs(outpath)
@@ -257,5 +305,6 @@ if __name__ == '__main__':
                             )
     register_val_name = data_path_name + '_test'
 
-    inference_detectron2(train_data_path, train_config_path, input_image_path, register_val_name, model_path,
+    inference_detectron2(train_data_path, train_config_path, input_image_path, tile_size, tile_offset_size,
+                         register_val_name, model_path,
                          outpath)

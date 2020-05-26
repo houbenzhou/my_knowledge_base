@@ -90,6 +90,7 @@ def get_classname(train_data_path):
         config_dict = yaml.load(f, Loader=yaml.FullLoader)
         voc_config = DotMap(config_dict)
         classes = voc_config.dataset.get('classes')
+        del(classes[0])
     return classes
 
 
