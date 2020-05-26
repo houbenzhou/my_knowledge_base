@@ -87,6 +87,6 @@ if __name__ == '__main__':
     if os.path.exists(out_path):
         shutil.rmtree(out_path)
     if not os.path.exists(out_path):
-        os.mkdir(out_path)
+        os.makedirs(out_path)
     categotys = args.categotys
     create_dota_task2(input_path, out_path, categotys)
