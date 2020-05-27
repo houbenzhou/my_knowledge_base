@@ -21,7 +21,7 @@ def train_iobjectspy_voc(train_data_path, train_config_path, weight_path, max_it
     cfg.MODEL.WEIGHTS = weight_path  # initialize from model zoo
     cfg.SOLVER.IMS_PER_BATCH = 2
     cfg.SOLVER.BASE_LR = 0.00025
-    cfg.SOLVER.MAX_ITER = 5000  # 300 iterations seems good enough, but you can certainly train longer
+    cfg.SOLVER.MAX_ITER = max_iter  # 300 iterations seems good enough, but you can certainly train longer
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128  # faster, and good enough for this toy dataset
     num_class = get_class_num(train_data_path)
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = num_class  # get classes from sda
