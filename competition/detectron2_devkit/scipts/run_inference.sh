@@ -5,4 +5,6 @@
 --train_config_path /home/data/hou/workspaces/detectron2/configs/my_experiment/cascade_mask_rcnn_R_50_FPN_1x.yaml \
 --input_image_path /home/data/hou/workspaces/my_knowledge_base/competition/dota/dotav1_test/images \
 --model_path /home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/out/temp/model_final.pth \
+--tile_size 800 \
+--tile_offset_size 400 \
 --outpath  /home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/out/labelTxt
