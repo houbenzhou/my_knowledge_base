@@ -84,7 +84,7 @@ def nms_score_thresh(lable_file, nms_thresh, score_thresh, categoty_names, out_l
         for cls_ind, cls in enumerate(categoty_names[0:]):
             all_boxes_temp = []
             for i in all_boxes:
-                if str(cls) == i.split(" ")[0]:
+                if (str(cls) == i.split(" ")[0]) & (float(i.split(" ")[2]) >= float(score_thresh)):
                     temp_single_box = []
                     temp_single_box.append(float(i.split(" ")[3]))
                     temp_single_box.append(float(i.split(" ")[4]))
