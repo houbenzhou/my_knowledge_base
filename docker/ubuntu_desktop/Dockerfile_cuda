@@ -11,18 +11,20 @@ ENV SOFTWARE=/headless/Supermap/
 
 COPY ./software/geoai/ $SOFTWARE/
 RUN cp $SOFTWARE/sources.list /etc/apt
-# ==================================================================
-# 支持中文
-# ------------------------------------------------------------------
-ENV LANG=zh_CN.utf8
-RUN export LANG=$LANG
-USER root
 
 # ==================================================================
 # software
 # ------------------------------------------------------------------
 RUN apt-get update && apt-get install -y --no-install-recommends \
-gnupg2 curl ca-certificates openjdk-8-jdk && \
+gnupg2 curl ca-certificates openjdk-8-jdk  build-essential \
+        apt-utils \
+        aria2 \
+        wget \
+        git \
+        vim \
+        libssl-dev \
+        unzip \
+        unrar  && \
     curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub | apt-key add - && \
     echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/cuda.list && \
     echo "deb https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/nvidia-ml.list && \
