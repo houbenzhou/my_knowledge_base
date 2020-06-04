@@ -57,7 +57,7 @@ def get_parser():
 
     parser.add_argument(
         "--label_path",
-        default='/home/data/hou/workspaces/my_knowledge_base/competition/dota/dotav1_test/labelTxt',
+        default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/out/labelTxt',
         help="label path ",
     )
 
@@ -78,6 +78,7 @@ if __name__ == '__main__':
     if os.path.exists(out_path):
         shutil.rmtree(out_path)
     if not os.path.exists(out_path):
-        os.mkdir(out_path)
+        os.makedirs(out_path)
+
 
     visual_dota(img_path, label_path, out_path)
