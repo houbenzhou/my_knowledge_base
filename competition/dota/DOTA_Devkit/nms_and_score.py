@@ -164,4 +164,4 @@ if __name__ == '__main__':
     for label_name in label_names:
         lable_file = os.path.join(lable_path, label_name)
         out_lable_file = os.path.join(out_lable_path, label_name)
-        nms_score_thresh(lable_file, nms_thresh, score_thresh, categoty_names, out_lable_file)
+        nms_score_thresh(lable_file, float(nms_thresh), float(score_thresh), categoty_names, out_lable_file)

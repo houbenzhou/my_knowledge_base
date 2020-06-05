@@ -1,7 +1,7 @@
 import argparse
 import os
 import shutil
-from typing import re
+import re
 
 import yaml
 from dotmap import DotMap
@@ -73,7 +73,7 @@ def get_parser():
 
     parser.add_argument(
         "--categotys",
-        default='/home/data/hou/workspaces/my_knowledge_base/competition/iobjects_tf_faster_rcnn/out/2020-05-07/1024_s600/saved_model/saved_model.sdm',
+        default='/home/data/hou/workspaces/my_knowledge_base/competition/dota/out/2020-05-07/1024_s600/saved_model/saved_model.sdm',
         help="The name of the category you want to predict",
     )
 
