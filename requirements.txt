@@ -1,4 +1,5 @@
 jupyterlab
+pillow
 numpy
 shapely
 opencv-python
