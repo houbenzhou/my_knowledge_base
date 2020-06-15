@@ -157,10 +157,10 @@ def _print_instances_small_middle_larg_histogram(dataset_dicts, class_names):
                           enumerate(histogram)])
     )
     # total_num_instances = sum(data[1::2])
-    total_num_instances=0
-    total_small_instances=0
-    total_medium_instances=0
-    total_large_instances=0
+    total_num_instances = 0
+    total_small_instances = 0
+    total_medium_instances = 0
+    total_large_instances = 0
     for i in range(0, num_classes):
         total_num_instances = total_num_instances + data[i * 5 + 1]
         total_small_instances = total_small_instances + data[i * 5 + 2]
@@ -226,6 +226,93 @@ def count_instances_class_small_middle_large_number(dataset_dicts, class_names):
             pass
 
 
+def _print_instances_class_aspect_ratio_histogram(dataset_dicts, class_names):
+    """
+    总的类别长宽比
+    Args:
+        dataset_dicts (list[dict]): list of dataset dicts.
+        class_names (list[str]): list of class names (zero-indexed).
+    """
+    num_classes = len(class_names)
+    hist_bins = np.arange(num_classes + 1)
+    classes_total_h_w = {}
+    classes_total_num = {}
+    classes_total_total = {}
+    # 通过类别初始化字典
+    for i in range(0, num_classes):
+        classes_total_h_w[i] = 0
+        classes_total_num[i] = 0
+        classes_total_total[i] = 0
+    for entry in dataset_dicts:
+        annos = entry["annotations"]
+        for x in annos:
+            if (x['bbox'][3] - x['bbox'][1]) >= (x['bbox'][2] - x['bbox'][0]):
+                classes_total_h_w[x["category_id"]] = classes_total_h_w[x["category_id"]] + round(
+                    x['bbox'][3] - x['bbox'][1]) / (x['bbox'][2] - x['bbox'][0])
+            else:
+                classes_total_h_w[x["category_id"]] = classes_total_h_w[x["category_id"]] + round(
+                    x['bbox'][2] - x['bbox'][0]) / (x['bbox'][3] - x['bbox'][1])
+
+            classes_total_num[x["category_id"]] = classes_total_num[x["category_id"]] + 1
+
+    classes_total = []
+    for i in range(0, num_classes):
+        classes_total_total[i] = classes_total_h_w[i] / classes_total_num[i]
+        classes_total.append(classes_total_total[i])
+
+    N_COLS = min(2, len(class_names) * 4)
+
+    def short_name(x):
+        # make long class names shorter. useful for lvis
+        if len(x) > 13:
+            return x[:11] + ".."
+        return x
+
+
+    data = list(
+        itertools.chain(*[[short_name(class_names[i]), float(v)] for i, v in enumerate
+        (classes_total)])
+    )
+    # total_num_instances = sum(data[1::2])
+    # total_num_instances = 0
+    # total_small_instances = 0
+    # total_medium_instances = 0
+    # total_large_instances = 0
+    # for i in range(0, num_classes):
+    #     total_num_instances = total_num_instances + data[i * 5 + 1]
+    #     total_small_instances = total_small_instances + data[i * 5 + 2]
+    #     total_medium_instances = total_medium_instances + data[i * 5 + 3]
+    #     total_large_instances = total_large_instances + data[i * 5 + 4]
+    data.extend([None] * (N_COLS - (len(data) % N_COLS)))
+    # if num_classes > 1:
+    # data.extend(["total", total_num_instances, total_small_instances, total_medium_instances, total_large_instances])
+    data = itertools.zip_longest(*[data[i::N_COLS] for i in range(N_COLS)])
+    table = tabulate(
+        data,
+        headers=["category", "#ratio"] * (N_COLS // 2),
+        tablefmt="pipe",
+        numalign="left",
+        stralign="center",
+    )
+    print(table)
+
+
+def count_instances_class_aspect_ratio_number(dataset_dicts, class_names):
+    """
+   Args:
+       dataset_dicts (list[dict]): list of dataset dicts.
+       class_names (list[str]): list of class names (zero-indexed).
+   """
+    for dataset_name, dicts in zip(class_names, dataset_dicts):
+        assert len(dicts), "Dataset '{}' is empty!".format(dataset_name)
+    has_instances = "annotations" in dataset_dicts[0]
+    if has_instances:
+        try:
+            _print_instances_class_aspect_ratio_histogram(dataset_dicts, class_names)
+        except AttributeError:  # class names are not available for this dataset
+            pass
+
+
 if __name__ == '__main__':
     # train_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/newVoc/VOC"
     train_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/VOC"
@@ -236,4 +323,6 @@ if __name__ == '__main__':
 
     # conunt_instances_class_number(dataset_dicts, class_names)
 
-    count_instances_class_small_middle_large_number(dataset_dicts, class_names)
+    # count_instances_class_small_middle_large_number(dataset_dicts, class_names)
+    #
+    count_instances_class_aspect_ratio_number(dataset_dicts, class_names)
