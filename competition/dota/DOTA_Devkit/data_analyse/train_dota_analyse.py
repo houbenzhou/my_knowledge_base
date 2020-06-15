@@ -28,7 +28,7 @@ def load_dota_instances(image_data_path: str, label_data_path: str, class_names:
 
     dicts = []
     for fileid in fileids:
-        fileid=fileid.split(".")[0]
+        fileid = fileid.split(".")[0]
         anno_file = os.path.join(label_data_path, fileid + ".txt")
         jpeg_file = os.path.join(image_data_path, fileid + ".png")
 
@@ -236,29 +236,34 @@ def _print_instances_class_aspect_ratio_histogram(dataset_dicts, class_names):
     classes_total_h_w = {}
     classes_total_num = {}
     classes_total_total = {}
+    classes_total_max = {}
     # 通过类别初始化字典
     for i in range(0, num_classes):
         classes_total_h_w[i] = 0
         classes_total_num[i] = 0
         classes_total_total[i] = 0
+        classes_total_max[i] = 0
     for entry in dataset_dicts:
         annos = entry["annotations"]
         for x in annos:
-            if (x['bbox'][3] - x['bbox'][1]) >= (x['bbox'][2] - x['bbox'][0]):
-                classes_total_h_w[x["category_id"]] = classes_total_h_w[x["category_id"]] + round(
-                    x['bbox'][3] - x['bbox'][1]) / (x['bbox'][2] - x['bbox'][0])
+            if ((x['bbox'][3] - x['bbox'][1]) >= (x['bbox'][2] - x['bbox'][0])) & ((x['bbox'][2] - x['bbox'][0]) > 0):
+                ratio_ = round(x['bbox'][3] - x['bbox'][1]) / (x['bbox'][2] - x['bbox'][0])
+                classes_total_h_w[x["category_id"]] = classes_total_h_w[x["category_id"]] + ratio_
+                classes_total_max[x["category_id"]] = max(classes_total_max[x["category_id"]], ratio_)
+            elif ((x['bbox'][2] - x['bbox'][0]) >= (x['bbox'][3] - x['bbox'][1])) & ((x['bbox'][3] - x['bbox'][1]) > 0):
+                ratio_ = round(x['bbox'][2] - x['bbox'][0]) / (x['bbox'][3] - x['bbox'][1])
+                classes_total_h_w[x["category_id"]] = classes_total_h_w[x["category_id"]] + ratio_
+                classes_total_max[x["category_id"]] = max(classes_total_max[x["category_id"]], ratio_)
             else:
-                classes_total_h_w[x["category_id"]] = classes_total_h_w[x["category_id"]] + round(
-                    x['bbox'][2] - x['bbox'][0]) / (x['bbox'][3] - x['bbox'][1])
-
+                continue
             classes_total_num[x["category_id"]] = classes_total_num[x["category_id"]] + 1
 
     classes_total = []
     for i in range(0, num_classes):
         classes_total_total[i] = classes_total_h_w[i] / classes_total_num[i]
-        classes_total.append(classes_total_total[i])
+        classes_total.append([classes_total_total[i], classes_total_max[i]])
 
-    N_COLS = min(2, len(class_names) * 4)
+    N_COLS = min(3, len(class_names) * 4)
 
     def short_name(x):
         # make long class names shorter. useful for lvis
@@ -267,7 +272,7 @@ def _print_instances_class_aspect_ratio_histogram(dataset_dicts, class_names):
         return x
 
     data = list(
-        itertools.chain(*[[short_name(class_names[i]), float(v)] for i, v in enumerate
+        itertools.chain(*[[short_name(class_names[i]), float(v[0]), float(v[1])] for i, v in enumerate
         (classes_total)])
     )
     # total_num_instances = sum(data[1::2])
@@ -286,7 +291,7 @@ def _print_instances_class_aspect_ratio_histogram(dataset_dicts, class_names):
     data = itertools.zip_longest(*[data[i::N_COLS] for i in range(N_COLS)])
     table = tabulate(
         data,
-        headers=["category", "#ratio"] * (N_COLS // 2),
+        headers=["category", "#ratio", "ratio_max"] * (N_COLS // 2),
         tablefmt="pipe",
         numalign="left",
         stralign="center",
@@ -311,10 +316,21 @@ def count_instances_class_aspect_ratio_number(dataset_dicts, class_names):
 
 
 if __name__ == '__main__':
-    # train_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/newVoc/VOC"
-    train_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/VOC"
+    # 获取类别
+    # train_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/VOC"
+    # # 统计dotav1 原始数据集的指标
+    # image_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val/images"
+    # label_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val/labelTxt"
+    # 统计dotav2 原始数据集的指标
+    train_data_path = '/home/data/windowdata/data/dota/dotav2/dotav2/voc2'
     image_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val/images"
-    label_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val/labelTxt"
+    label_data_path = "/home/data/windowdata/data/dota/dotav2/dotav2/labelTxt-v1.5/train"
+    # 统计切图800后的原始数据集指标
+    # image_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/images"
+    # label_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/labelTxt"
+    # 统计切图600后的原始数据集指标
+    # image_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_600/images"
+    # label_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_600/labelTxt"
     class_names = get_classname(train_data_path)
 
     dataset_dicts = load_dota_instances(image_data_path, label_data_path, class_names)
@@ -322,5 +338,5 @@ if __name__ == '__main__':
     # conunt_instances_class_number(dataset_dicts, class_names)
 
     count_instances_class_small_middle_large_number(dataset_dicts, class_names)
-    #
+
     # count_instances_class_aspect_ratio_number(dataset_dicts, class_names)

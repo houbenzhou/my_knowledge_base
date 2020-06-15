@@ -238,29 +238,35 @@ def _print_instances_class_aspect_ratio_histogram(dataset_dicts, class_names):
     classes_total_h_w = {}
     classes_total_num = {}
     classes_total_total = {}
+    classes_total_min = {}
+    classes_total_max = {}
     # 通过类别初始化字典
     for i in range(0, num_classes):
         classes_total_h_w[i] = 0
         classes_total_num[i] = 0
         classes_total_total[i] = 0
+        classes_total_max[i] = 0
     for entry in dataset_dicts:
         annos = entry["annotations"]
         for x in annos:
             if (x['bbox'][3] - x['bbox'][1]) >= (x['bbox'][2] - x['bbox'][0]):
-                classes_total_h_w[x["category_id"]] = classes_total_h_w[x["category_id"]] + round(
-                    x['bbox'][3] - x['bbox'][1]) / (x['bbox'][2] - x['bbox'][0])
+                ratio_ = round(x['bbox'][3] - x['bbox'][1]) / (x['bbox'][2] - x['bbox'][0])
+                classes_total_h_w[x["category_id"]] = classes_total_h_w[x["category_id"]] + ratio_
+                classes_total_max[x["category_id"]] = max(classes_total_max[x["category_id"]], ratio_)
+
             else:
-                classes_total_h_w[x["category_id"]] = classes_total_h_w[x["category_id"]] + round(
-                    x['bbox'][2] - x['bbox'][0]) / (x['bbox'][3] - x['bbox'][1])
+                ratio_ = round(x['bbox'][2] - x['bbox'][0]) / (x['bbox'][3] - x['bbox'][1])
+                classes_total_h_w[x["category_id"]] = classes_total_h_w[x["category_id"]] + ratio_
+                classes_total_max[x["category_id"]] = max(classes_total_max[x["category_id"]], ratio_)
 
             classes_total_num[x["category_id"]] = classes_total_num[x["category_id"]] + 1
 
     classes_total = []
     for i in range(0, num_classes):
         classes_total_total[i] = classes_total_h_w[i] / classes_total_num[i]
-        classes_total.append(classes_total_total[i])
+        classes_total.append([classes_total_total[i], classes_total_max[i]])
 
-    N_COLS = min(2, len(class_names) * 4)
+    N_COLS = min(3, len(class_names) * 4)
 
     def short_name(x):
         # make long class names shorter. useful for lvis
@@ -268,9 +274,8 @@ def _print_instances_class_aspect_ratio_histogram(dataset_dicts, class_names):
             return x[:11] + ".."
         return x
 
-
     data = list(
-        itertools.chain(*[[short_name(class_names[i]), float(v)] for i, v in enumerate
+        itertools.chain(*[[short_name(class_names[i]), float(v[0]), float(v[1])] for i, v in enumerate
         (classes_total)])
     )
     # total_num_instances = sum(data[1::2])
@@ -289,7 +294,7 @@ def _print_instances_class_aspect_ratio_histogram(dataset_dicts, class_names):
     data = itertools.zip_longest(*[data[i::N_COLS] for i in range(N_COLS)])
     table = tabulate(
         data,
-        headers=["category", "#ratio"] * (N_COLS // 2),
+        headers=["category", "#ratio","ratio_max"] * (N_COLS // 2),
         tablefmt="pipe",
         numalign="left",
         stralign="center",
@@ -324,5 +329,5 @@ if __name__ == '__main__':
     # conunt_instances_class_number(dataset_dicts, class_names)
 
     # count_instances_class_small_middle_large_number(dataset_dicts, class_names)
-    #
+
     count_instances_class_aspect_ratio_number(dataset_dicts, class_names)
