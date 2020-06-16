@@ -1,3 +1,4 @@
+import argparse
 import os
 import shutil
 import xml.etree.ElementTree as ET
@@ -83,12 +84,31 @@ def visual_object_detection_voc(voc_path, out_path):
         img.save(os.path.join(out_path, img_name))
 
 
+def get_parser():
+    parser = argparse.ArgumentParser(description="dota test visual")
+    parser.add_argument(
+        "--voc_path",
+        default="/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/VOC",
+        help="voc data path",
+    )
+
+    parser.add_argument(
+        "--out_path",
+        default='/home/data/windowdata/temp/dota_train_data_visual/dotav1/trainsplite800_voc',
+        help="A directory to save the output images . ",
+    )
+
+    return parser
+
+
 if __name__ == '__main__':
 
-
-    voc_path = '/home/data/hou/workspaces/iobjectspy/resources_ml/example/项目/中南勘测院/out/2020-04-14/光3_train_test/VOC'
-
-    out_path = '/home/data/temp/visual'
+    args = get_parser().parse_args()
+    voc_path = args.voc_path
+    out_path = args.out_path
+    if os.path.exists(out_path):
+        shutil.rmtree(out_path)
+    if not os.path.exists(out_path):
+        os.mkdir(out_path)
 
     visual_object_detection_voc(voc_path, out_path)
-
