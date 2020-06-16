@@ -186,7 +186,7 @@ def create_annotation(path_images, path_label, categorys, tile_size, tile_offset
                     else:
                         if (ymax < height) & (
                                 xmax < width) & (ymax > ymin) & (xmax > xmin) & (ymin > 0) & (
-                                xmin > 0) & (difficult <= 1):
+                                xmin > 0) & (difficult <= 2):
                             if ((ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
                                 listnew = []
                                 listnew.append(xmin)
