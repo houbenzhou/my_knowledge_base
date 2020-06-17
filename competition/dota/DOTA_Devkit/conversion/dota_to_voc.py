@@ -1,5 +1,6 @@
 import argparse
 import os
+import re
 from collections import OrderedDict
 
 import yaml
@@ -125,108 +126,84 @@ def create_annotation(path_images, path_label, categorys, tile_size, tile_offset
 
         label_name = pic_name.split('.')
         if label_name[-1] == "png":
-            label_name[-1]='txt'
+            label_name[-1] = 'txt'
             label_name = str.join(".", label_name)
         lists = []
         label_path = os.path.join(path_label, label_name)
         file = open(label_path, "r", encoding="utf-8", errors="ignore")
-        m = 0
-
         try:
             while True:
                 mystr = file.readline()  # 表示一次读取一行
-                # print(mystr.split(' ')[1])  # 打印每次读到的内容
                 if not mystr:
                     # 读到数据最后跳出，结束循环。数据的最后也就是读不到数据了，mystr为空的时候
                     break
-                m = m + 1
-                if m > 0:
-                    list = mystr.split(' ')
-                    x = []
-                    y = []
-                    x.append(float(list[0]))
-                    x.append(float(list[2]))
-                    x.append(float(list[4]))
-                    x.append(float(list[6]))
-                    y.append(float(list[1]))
-                    y.append(float(list[3]))
-                    y.append(float(list[5]))
-                    y.append(float(list[7]))
-                    xmin = min(x)
-                    ymin = min(y)
-                    xmax = max(x)
-                    ymax = max(y)
-                    name = list[8]
-                    dict_categorys.add(name)
-                    difficult = int(list[9][0])
+                list = mystr.split(' ')
+                x = []
+                y = []
+                x.append(float(list[0]))
+                x.append(float(list[2]))
+                x.append(float(list[4]))
+                x.append(float(list[6]))
+                y.append(float(list[1]))
+                y.append(float(list[3]))
+                y.append(float(list[5]))
+                y.append(float(list[7]))
+                xmin = min(x)
+                ymin = min(y)
+                xmax = max(x)
+                ymax = max(y)
+                name = list[8]
+                dict_categorys.add(name)
+                difficult = int(list[9][0])
 
-                    if categorys is None:
-                        if (ymax < height) & (
-                                xmax < width) & (ymax > ymin) & (xmax > xmin) & (ymin > 0) & (
-                                xmin > 0) & (difficult <= 2):
-                            if ((ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
-                                listnew = []
-                                listnew.append(xmin)
-                                listnew.append(ymin)
-                                listnew.append(xmax)
-                                listnew.append(ymax)
+                if categorys is None:
+                    if (ymax > (ymin + 2)) & (xmax > (xmin + 2)) & (difficult <= 2) & (
+                            (ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
+                        listnew = []
+                        listnew.append(xmin)
+                        listnew.append(ymin)
+                        listnew.append(xmax)
+                        listnew.append(ymax)
 
-                                listnew.append(name)
-                                if difficult <= 1:
-                                    listnew.append(difficult)
-                                else:
-                                    listnew.append(1)
+                        listnew.append(name)
+                        if difficult <= 1:
+                            listnew.append(difficult)
+                        else:
+                            listnew.append(1)
 
-                                lists.append(listnew)
+                        lists.append(listnew)
 
-                                if (xmax <= xmin) | (ymax <= ymin):
-                                    print(listnew)
-                                    print(pic_name)
-                                category = name
-                                # 获取数据集中category字段保存的类别
-                                if category not in categorys_temp:
-                                    categorys_temp.append(category)
+                        category = name
+                        # 获取数据集中category字段保存的类别
+                        if category not in categorys_temp:
+                            categorys_temp.append(category)
 
-                    else:
-                        if ((name == 'plane') | (name == 'ship') | (name == 'small-vehicle') | (
-                                name == 'large-vehicle')) & (ymax < height) & (
-                                xmax < width) & (ymax > ymin) & (xmax > xmin) & (ymin > 0) & (
-                                xmin > 0) & (difficult <= 1):
-                            if ((ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
-                                listnew = []
-                                listnew.append(xmin)
-                                listnew.append(ymin)
-                                listnew.append(xmax)
-                                listnew.append(ymax)
+                else:
+                    if name in categorys:
+                        if (ymax > (ymin + 2)) & (xmax > (xmin + 2)) & (difficult <= 2) & (
+                                (ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
+                            listnew = []
+                            listnew.append(xmin)
+                            listnew.append(ymin)
+                            listnew.append(xmax)
+                            listnew.append(ymax)
 
-                                listnew.append(name)
-                                if difficult <= 1:
-                                    listnew.append(difficult)
-                                else:
-                                    listnew.append(1)
-
-                                lists.append(listnew)
-
-                                if (xmax <= xmin) | (ymax <= ymin):
-                                    print(listnew)
-                                    print(pic_name)
-
-
-
-
-        except:
-            pass
-        if lists == []:
-            print("null")
-        else:
+                            listnew.append(name)
+                            if difficult <= 1:
+                                listnew.append(difficult)
+                            else:
+                                listnew.append(1)
+                            lists.append(listnew)
+        except IOError:
+            print(IOError)
+        if lists:
             save_xml(pic_name, lists, target_label_path, width, height,
                      channel)
-        del lists[:]
+
         # 创建VOC数据描述配置文件
     if categorys is not None:
-        for category in categorys:
-            categorys_temp.append(category)
-        # 1024 更新tile记录数
+        categorys_temp = categorys
+    # 1024 更新tile记录数
     dic_voc_yml = OrderedDict({
         'dataset': OrderedDict({"name": "example_voc",
                                 'classes': categorys_temp,
@@ -266,16 +243,16 @@ def _save_index_file(output_path_main, output_path_img):
 
     for pic_name in list_train:
         label_name = pic_name.split('.')[0]
-        train_txt.write(label_name + '\n')
+        train_txt.write(label_name + os.linesep)
     for pic_name in list_val:
         label_name = pic_name.split('.')[0]
-        val_txt.write(label_name + '\n')
+        val_txt.write(label_name + os.linesep)
     for pic_name in list_test:
         label_name = pic_name.split('.')[0]
-        test_txt.write(label_name + '\n')
+        test_txt.write(label_name + os.linesep)
     for pic_name in list_trainval:
         label_name = pic_name.split('.')[0]
-        trainval_txt.write(label_name + '\n')
+        trainval_txt.write(label_name + os.linesep)
 
     # 关闭所有打开的文件
     train_txt.close()
@@ -293,7 +270,7 @@ def create_images(path, voc_labels_path, out_path):
 
         pic_name = label_name.split('.')
         if pic_name[-1] == "xml":
-            pic_name[-1]='png'
+            pic_name[-1] = 'png'
             pic_name = str.join(".", pic_name)
         voc_pic_name = label_name.split('.')
         if voc_pic_name[-1] == "xml":
@@ -304,6 +281,7 @@ def create_images(path, voc_labels_path, out_path):
         bg.paste(im)
 
         bg.save(out_path + "/" + voc_pic_name)
+
 
 def get_parser():
     parser = argparse.ArgumentParser(description="split dota")
@@ -336,12 +314,13 @@ def get_parser():
         help="subsize of patch ",
     )
 
-
     return parser
+
+
 if __name__ == '__main__':
     args = get_parser().parse_args()
-    input_dota_path =args.input_dota_path
-    out_voc_path =args.out_voc_path
+    input_dota_path = args.input_dota_path
+    out_voc_path = args.out_voc_path
     category = args.category
     tile_size = args.tile_size
     tile_offset = args.tile_offset
@@ -351,6 +330,9 @@ if __name__ == '__main__':
     voc_images_path = os.path.join(out_voc_path, "Images")
     voc_main_path = os.path.join(out_voc_path, "ImageSets", "Main")
     sda_path = os.path.join(out_voc_path, "VOC.sda")
+    # 将类别的字符串按照,号或者，号进行分割
+    regex = ",|，"
+    category = re.split(regex, category)
     # 生成VOC的标签数据
     create_annotation(path_images, path_label, category, tile_size, tile_offset, voc_labels_path, sda_path)
     # 生成VOC的图像数据
