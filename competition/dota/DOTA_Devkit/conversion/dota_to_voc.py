@@ -160,30 +160,7 @@ def create_annotation(path_images, path_label, categorys, tile_size, tile_offset
                     dict_categorys.add(name)
                     difficult = int(list[9][0])
 
-                    if categorys is not None:
-                        if ((name == 'plane') | (name == 'ship') | (name == 'small-vehicle') | (
-                                name == 'large-vehicle')) & (ymax < height) & (
-                                xmax < width) & (ymax > ymin) & (xmax > xmin) & (ymin > 0) & (
-                                xmin > 0) & (difficult <= 1):
-                            if ((ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
-                                listnew = []
-                                listnew.append(xmin)
-                                listnew.append(ymin)
-                                listnew.append(xmax)
-                                listnew.append(ymax)
-
-                                listnew.append(name)
-                                if difficult <= 1:
-                                    listnew.append(difficult)
-                                else:
-                                    listnew.append(1)
-
-                                lists.append(listnew)
-
-                                if (xmax <= xmin) | (ymax <= ymin):
-                                    print(listnew)
-                                    print(pic_name)
-                    else:
+                    if categorys is None:
                         if (ymax < height) & (
                                 xmax < width) & (ymax > ymin) & (xmax > xmin) & (ymin > 0) & (
                                 xmin > 0) & (difficult <= 2):
@@ -209,6 +186,31 @@ def create_annotation(path_images, path_label, categorys, tile_size, tile_offset
                                 # 获取数据集中category字段保存的类别
                                 if category not in categorys_temp:
                                     categorys_temp.append(category)
+
+                    else:
+                        if ((name == 'plane') | (name == 'ship') | (name == 'small-vehicle') | (
+                                name == 'large-vehicle')) & (ymax < height) & (
+                                xmax < width) & (ymax > ymin) & (xmax > xmin) & (ymin > 0) & (
+                                xmin > 0) & (difficult <= 1):
+                            if ((ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
+                                listnew = []
+                                listnew.append(xmin)
+                                listnew.append(ymin)
+                                listnew.append(xmax)
+                                listnew.append(ymax)
+
+                                listnew.append(name)
+                                if difficult <= 1:
+                                    listnew.append(difficult)
+                                else:
+                                    listnew.append(1)
+
+                                lists.append(listnew)
+
+                                if (xmax <= xmin) | (ymax <= ymin):
+                                    print(listnew)
+                                    print(pic_name)
+
 
 
 
