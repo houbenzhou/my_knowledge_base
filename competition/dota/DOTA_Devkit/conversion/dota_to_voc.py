@@ -157,31 +157,8 @@ def create_annotation(path_images, path_label, categorys, tile_size, tile_offset
                 difficult = int(list[9][0])
 
                 if categorys is None:
-                    if (ymax > (ymin + 2)) & (xmax > (xmin + 2)) & (difficult <= 2) & (
-                            (ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
-                        listnew = []
-                        listnew.append(xmin)
-                        listnew.append(ymin)
-                        listnew.append(xmax)
-                        listnew.append(ymax)
-
-                        listnew.append(name)
-                        if difficult <= 1:
-                            listnew.append(difficult)
-                        else:
-                            listnew.append(1)
-
-                        lists.append(listnew)
-
-                        category = name
-                        # 获取数据集中category字段保存的类别
-                        if category not in categorys_temp:
-                            categorys_temp.append(category)
-
-                else:
-                    if name in categorys:
-                        if (ymax > (ymin + 2)) & (xmax > (xmin + 2)) & (difficult <= 2) & (
-                                (ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
+                    if (ymax > (ymin + 2)) & (xmax > (xmin + 2)) & (difficult <= 2):
+                        if((ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
                             listnew = []
                             listnew.append(xmin)
                             listnew.append(ymin)
@@ -193,7 +170,30 @@ def create_annotation(path_images, path_label, categorys, tile_size, tile_offset
                                 listnew.append(difficult)
                             else:
                                 listnew.append(1)
+
                             lists.append(listnew)
+
+                            category = name
+                            # 获取数据集中category字段保存的类别
+                            if category not in categorys_temp:
+                                categorys_temp.append(category)
+
+                else:
+                    if name in categorys:
+                        if (ymax > (ymin + 2)) & (xmax > (xmin + 2)) & (difficult <= 2):
+                            if ((ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
+                                listnew = []
+                                listnew.append(xmin)
+                                listnew.append(ymin)
+                                listnew.append(xmax)
+                                listnew.append(ymax)
+
+                                listnew.append(name)
+                                if difficult <= 1:
+                                    listnew.append(difficult)
+                                else:
+                                    listnew.append(1)
+                                lists.append(listnew)
         except IOError:
             print(IOError)
         if lists:
