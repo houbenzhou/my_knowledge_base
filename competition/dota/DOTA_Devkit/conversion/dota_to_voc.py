@@ -202,7 +202,8 @@ def create_annotation(path_images, path_label, categorys, tile_size, tile_offset
 
         # 创建VOC数据描述配置文件
     if categorys is not None:
-        categorys_temp = categorys
+        for category in categorys:
+            categorys_temp.append(category)
     # 1024 更新tile记录数
     dic_voc_yml = OrderedDict({
         'dataset': OrderedDict({"name": "example_voc",
