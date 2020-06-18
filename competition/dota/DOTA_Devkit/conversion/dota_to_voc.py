@@ -331,8 +331,9 @@ if __name__ == '__main__':
     voc_main_path = os.path.join(out_voc_path, "ImageSets", "Main")
     sda_path = os.path.join(out_voc_path, "VOC.sda")
     # 将类别的字符串按照,号或者，号进行分割
-    regex = ",|，"
-    category = re.split(regex, category)
+    if category is not None:
+        regex = ",|，"
+        category = re.split(regex, category)
     # 生成VOC的标签数据
     create_annotation(path_images, path_label, category, tile_size, tile_offset, voc_labels_path, sda_path)
     # 生成VOC的图像数据
