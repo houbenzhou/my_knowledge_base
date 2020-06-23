@@ -44,9 +44,9 @@ def eval_objects_width_height(xml_paths, object_width_height_txt):
             object_width_height_txt.write(line + '\n')
 
 
-def visual_object_detection_voc(voc_path, out_path):
-    voc_xml = os.path.join(voc_path, 'Annotations')
-    voc_img = os.path.join(voc_path, 'Images')
+def visual_object_detection_voc(voc_img, voc_xml, out_path):
+    # voc_xml = os.path.join(voc_path, 'Annotations')
+    # voc_img = os.path.join(voc_path, 'Images')
     xml_path_ = os.listdir(voc_xml)
     if os.path.exists(out_path):
         shutil.rmtree(out_path)
@@ -87,9 +87,14 @@ def visual_object_detection_voc(voc_path, out_path):
 def get_parser():
     parser = argparse.ArgumentParser(description="dota test visual")
     parser.add_argument(
-        "--voc_path",
-        default="/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/VOC",
-        help="voc data path",
+        "--voc_img",
+        default="/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/VOC/Images",
+        help="voc image path",
+    )
+    parser.add_argument(
+        "--voc_xml",
+        default="/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/VOC/Annotations",
+        help="voc label path",
     )
 
     parser.add_argument(
@@ -104,11 +109,11 @@ def get_parser():
 if __name__ == '__main__':
 
     args = get_parser().parse_args()
-    voc_path = args.voc_path
+    voc_img = args.voc_img
+    voc_xml = args.voc_xml
     out_path = args.out_path
     if os.path.exists(out_path):
         shutil.rmtree(out_path)
     if not os.path.exists(out_path):
         os.mkdir(out_path)
-
-    visual_object_detection_voc(voc_path, out_path)
+    visual_object_detection_voc(voc_img, voc_xml, out_path)
