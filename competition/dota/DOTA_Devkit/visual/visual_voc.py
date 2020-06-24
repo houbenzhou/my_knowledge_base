@@ -60,6 +60,7 @@ def visual_object_detection_voc(voc_img, voc_xml, out_path):
         img_pth = os.path.join(voc_img, img_name)
 
         img = Image.open(img_pth)
+        img = img.convert('RGB')
         draw = ImageDraw.Draw(img)
         tree = ET.parse(xml_pth)
         rect = {}
@@ -88,12 +89,12 @@ def get_parser():
     parser = argparse.ArgumentParser(description="dota test visual")
     parser.add_argument(
         "--voc_img",
-        default="/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/VOC/Images",
+        default="/home/data/hou/workspaces/iobjectspy3/resources_ml/out/voc/Images",
         help="voc image path",
     )
     parser.add_argument(
         "--voc_xml",
-        default="/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/VOC/Annotations",
+        default="/home/data/hou/workspaces/iobjectspy3/resources_ml/out/plane",
         help="voc label path",
     )
 
