@@ -10,7 +10,7 @@ from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
-def save_xml(image_name, lists, save_dir, width=1609, height=500, channel=3):
+def save_xml(image_name, lists, save_xml, width=1609, height=500, channel=3):
     '''
   :param image_name:图片名
   :param bbox:对应的bbox
@@ -69,12 +69,8 @@ def save_xml(image_name, lists, save_dir, width=1609, height=500, channel=3):
 
     xml = tostring(node_root, pretty_print=True)
 
-    save_xml = os.path.join(save_dir, image_name.replace('jpg', 'xml'))
-
     with open(save_xml, 'wb') as f:
         f.write(xml)
-
-    return
 
 
 def save_config_to_yaml(config: OrderedDict, yaml_file: str, encoding='utf8') -> None:
@@ -105,9 +101,10 @@ def ordered_yaml_dump(data, stream=None, Dumper=yaml.SafeDumper, **kwds):
 def create_annotation(path_images, path_label, categorys, tile_size, tile_offset, target_label_path, sda_path):
     if not os.path.exists(target_label_path):
         os.makedirs(target_label_path)
-    dict_categorys = set([])
+
     categorys_temp = ['__background__']
     list_all = []
+    list_dict = dict()
     file = open(path_label, "r", encoding="utf-8", errors="ignore")
     while True:
         mystr = file.readline()  # 表示一次读取一行
@@ -116,6 +113,7 @@ def create_annotation(path_images, path_label, categorys, tile_size, tile_offset
             break
         list_box = mystr.split(';')
         pic_name = list_box[0].split(".")
+
         if pic_name[-1] == "ppm":
             pic_name[-1] = 'jpg'
             pic_name = str.join(".", pic_name)
@@ -127,58 +125,39 @@ def create_annotation(path_images, path_label, categorys, tile_size, tile_offset
         # 获取图像尺寸
         width, height = img.size
         channel = 3
-        xmin = int(list_box[1])
-        ymin = int(list_box[2])
-        xmax = int(list_box[3])
-        ymax = int(list_box[4])
+        list_box.append(width)
+        list_box.append(height)
+        list_box.append(channel)
+
         name = list_box[5].strip('\n')
-        dict_categorys.add(name)
-        difficult = 0
 
-        if categorys is None:
-            if (ymax > (ymin + 2)) & (xmax > (xmin + 2)) & (difficult <= 2):
-                if ((ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
-                    listnew = []
-                    listnew.append(xmin)
-                    listnew.append(ymin)
-                    listnew.append(xmax)
-                    listnew.append(ymax)
+        if name not in categorys_temp:
+            categorys_temp.append(name)
+        if pic_name in list_dict:
+            list_temp = []
+            for i in list_dict[pic_name]:
+                list_temp.append(i)
+            # list_temp.append(list_dict[pic_name].append(list_box))
+            list_temp.append(list_box)
+            list_dict.update({pic_name: list_temp})
+        elif pic_name not in list_dict:
+            list_temp = []
+            list_temp.append(list_box)
+            list_dict.update({pic_name: list_temp})
+    pic_names = os.listdir(path_images)
+    for pic_name in pic_names:
+        if pic_name in list_dict:
+            list_box_temp = []
+            for i in list_dict[pic_name]:
+                list_box_temp.append([i[1], i[2], i[3], i[4], i[5].strip('\n'), 0])
+                width = i[6]
+                height = i[7]
+                channel = i[8]
+            # list_box_temp = list_dict[pic_name]
+            target_label_path_xml = os.path.join(target_label_path, pic_name.replace('jpg', 'xml'))
+            save_xml(pic_name, list_box_temp, target_label_path_xml, width, height, channel)
 
-                    listnew.append(name)
-                    if difficult <= 1:
-                        listnew.append(difficult)
-                    else:
-                        listnew.append(1)
-
-                    list_all.append(listnew)
-
-                    category = name
-                    # 获取数据集中category字段保存的类别
-                    if category not in categorys_temp:
-                        categorys_temp.append(category)
-
-        else:
-            if name in categorys:
-                if (ymax > (ymin + 2)) & (xmax > (xmin + 2)) & (difficult <= 2):
-                    if ((ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
-                        listnew = []
-                        listnew.append(xmin)
-                        listnew.append(ymin)
-                        listnew.append(xmax)
-                        listnew.append(ymax)
-
-                        listnew.append(name)
-                        if difficult <= 1:
-                            listnew.append(difficult)
-                        else:
-                            listnew.append(1)
-                        list_all.append(listnew)
-
-        if list_all:
-            save_xml(pic_name, list_all, target_label_path, width, height,
-                     channel)
-
-        # 创建VOC数据描述配置文件
+    # 创建VOC数据描述配置文件
     if categorys is not None:
         for category in categorys:
             categorys_temp.append(category)
