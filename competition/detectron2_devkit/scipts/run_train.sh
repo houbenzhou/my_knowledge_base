@@ -5,4 +5,7 @@
 --train_config_path /home/data/hou/workspaces/detectron2/configs/my_experiment/cascade_mask_rcnn_R_50_FPN_1x.yaml \
 --weight_path /home/data/hou/workspaces/detectron2/data/model/model/ablations_for_deformable_conv_and_cascade_rcnn/cascade_mask_rcnn_R_50_FPN_3x/model_final_480dd8.pkl \
 --max_iter 16000 \
+--ml_set_tracking_path file:///home/data/windowdata/mlruns \
+--experiment_id detectron2_dota \
+-- ml_experiment_tag dota_splite800_2020_07_01 \
 --out_dir /home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/out/temp
