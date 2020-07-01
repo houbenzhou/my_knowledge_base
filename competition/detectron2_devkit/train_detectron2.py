@@ -12,25 +12,37 @@ from detectron2.engine import DefaultTrainer
 from detectron2.config import get_cfg
 
 
-def train_iobjectspy_voc(train_data_path, train_config_path, weight_path, max_iter, out_dir, register_train_name):
+def train_iobjectspy_voc(train_data_path, train_config_path, weight_path, max_iter, out_dir, register_train_name,
+                         ml_set_tracking_path, experiment_id, ml_experiment_tag):
     cfg = get_cfg()
     cfg.merge_from_file(train_config_path)
     cfg.DATASETS.TRAIN = (register_train_name,)
     cfg.DATASETS.TEST = ()  # no metrics implemented for this dataset
-    # cfg.DATALOADER.NUM_WORKERS = 2
     cfg.MODEL.WEIGHTS = weight_path  # initialize from model zoo
-    # cfg.SOLVER.IMS_PER_BATCH = 2
-    # cfg.SOLVER.BASE_LR = 0.00001
-    cfg.SOLVER.MAX_ITER = max_iter  # 300 iterations seems good enough, but you can certainly train longer
-    # cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128  # faster, and good enough for this toy dataset
+    if max_iter == -1:
+        pass
+    else:
+        cfg.SOLVER.MAX_ITER = max_iter
     num_class = get_class_num(train_data_path)
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = num_class  # get classes from sda
     cfg.OUTPUT_DIR = out_dir
-
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
     trainer = DefaultTrainer(cfg)
     trainer.resume_or_load(resume=True)
     trainer.train()
+    try:
+        import mlflow as ml
+        # 设置mlflow
+        ml.set_tracking_uri(ml_set_tracking_path)
+        # 通过设置不同的实验id来管理实验,建议这一层级为项目名称，比如：iobjectspy_faster_rcnn_dota
+        ml.set_experiment(experiment_id)
+        # 通过设置
+        ml.set_tag('experiment_id', ml_experiment_tag)
+        ml.log_param('lr', cfg.SOLVER.BASE_LR)
+        ml.log_param('max_iter', cfg.SOLVER.MAX_ITER)
+        ml.log_param('epoch', cfg.SOLVER.IMS_PER_BATCH)
+    except:
+        pass
 
 
 # dota
@@ -44,7 +56,7 @@ def get_parser():
 
     parser.add_argument(
         "--train_config_path",
-        default='/home/data/hou/workspaces/detectron2/configs/my_experiment/cascade_mask_rcnn_R_50_FPN_1x.yaml',
+        default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/configs/my_experiment/cascade_mask_rcnn_R_50_FPN_1x.yaml',
         help="path to config file",
     )
 
@@ -53,9 +65,10 @@ def get_parser():
         default='/home/data/hou/workspaces/detectron2/data/model/model/ablations_for_deformable_conv_and_cascade_rcnn/cascade_mask_rcnn_R_50_FPN_3x/model_final_480dd8.pkl',
         help="path to pre training model ",
     )
+
     parser.add_argument(
         "--out_dir",
-        default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/out/2020_05_26/dota/model',
+        default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/out/2020_05_26/dota/model2',
         help="path to output directory",
     )
 
@@ -64,6 +77,24 @@ def get_parser():
         type=int,
         default=1000,
         help="max iter",
+    )
+
+    parser.add_argument(
+        "--ml_set_tracking_path",
+        default="file:///home/data/windowdata/mlruns",
+        help="set tracking path",
+    )
+
+    parser.add_argument(
+        "--experiment_id",
+        default="detectron2_dota",
+        help="experiment",
+    )
+
+    parser.add_argument(
+        "--ml_experiment_tag",
+        default="dota_splite800_2020_07_01",
+        help="experiment tag",
     )
 
     return parser
@@ -77,10 +108,14 @@ if __name__ == '__main__':
     weight_path = args.weight_path
     max_iter = args.max_iter
     out_dir = args.out_dir
+    ml_set_tracking_path = args.ml_set_tracking_path
+    experiment_id = args.experiment_id
+    ml_experiment_tag = args.ml_experiment_tag
 
     data_path_name = train_data_path.split("/")[-1]
     class_names = get_classname(train_data_path)
     register_all_pascal_voc(train_data_path=train_data_path, class_names=class_names)
     register_train_name = data_path_name + '_trainval'
 
-    train_iobjectspy_voc(train_data_path, train_config_path, weight_path, max_iter, out_dir, register_train_name)
+    train_iobjectspy_voc(train_data_path, train_config_path, weight_path, max_iter, out_dir, register_train_name,
+                         ml_set_tracking_path, experiment_id, ml_experiment_tag)
