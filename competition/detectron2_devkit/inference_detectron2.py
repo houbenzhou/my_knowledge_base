@@ -24,19 +24,19 @@ def inference_detectron2(train_data_path, train_config_path, image_path, tile_si
                          model_path, outpath):
     cfg = get_cfg()
     cfg.merge_from_file(train_config_path)
-    cfg.DATALOADER.NUM_WORKERS = 2
+    # cfg.DATALOADER.NUM_WORKERS = 2
     cfg.MODEL.WEIGHTS = model_path  # initialize from model zoo
-    cfg.SOLVER.MAX_ITER = 300  # 300 iterations seems good enough, but you can certainly train longer
-    cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128  # faster, and good enough for this toy dataset
+    # cfg.SOLVER.MAX_ITER = 300  # 300 iterations seems good enough, but you can certainly train longer
+    # cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128  # faster, and good enough for this toy dataset
     num_class = get_class_num(train_data_path)
     category_name = get_classname(train_data_path)
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = num_class  # get classes from sda
 
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
     cfg.DATASETS.TEST = (register_val_name,)
-    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7
-    cfg.MODEL.RETINANET.NMS_THRESH_TEST = 0.7
-    cfg.MODEL.RETINANET.SCORE_THRESH_TEST = 0.05
+    # cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7
+    # cfg.MODEL.RETINANET.NMS_THRESH_TEST = 0.7
+    # cfg.MODEL.RETINANET.SCORE_THRESH_TEST = 0.05
     predictor = DefaultPredictor(cfg)
 
     pic_names = os.listdir(image_path)
