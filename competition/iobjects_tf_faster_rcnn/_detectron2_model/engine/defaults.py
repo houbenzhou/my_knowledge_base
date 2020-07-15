@@ -27,12 +27,13 @@ from ..data import (
     build_detection_test_loader,
     build_detection_train_loader,
 )
-from ..evaluation import (
-    DatasetEvaluator,
-    inference_on_dataset,
-    print_csv_format,
-    verify_results,
-)
+# from ..evaluation import (
+#     DatasetEvaluator,
+#     inference_on_dataset,
+#     print_csv_format,
+#     verify_results,
+# )
+from ..evaluation import DatasetEvaluator
 from ..modeling import build_model
 from ..solver import build_lr_scheduler, build_optimizer
 from ..utils import comm

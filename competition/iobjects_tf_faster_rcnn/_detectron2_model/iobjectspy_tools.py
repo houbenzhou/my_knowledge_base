@@ -5,11 +5,10 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 import yaml
+from fvcore.common.file_io import PathManager
+
 from .data import DatasetCatalog, MetadataCatalog
 from .structures import BoxMode
-# from detectron2.data import DatasetCatalog, MetadataCatalog
-# from detectron2.structures import BoxMode
-from fvcore.common.file_io import PathManager
 
 
 def load_voc_instances(dirname: str, split: str, class_names: list):

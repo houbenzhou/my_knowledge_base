@@ -2,13 +2,11 @@ import os
 
 from .iobjectspy_tools import get_class_num
 from .utils.logger import setup_logger
-# from detectron2.utils.logger import setup_logger
+
 setup_logger()
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
-# from detectron2.engine import DefaultTrainer
-# from detectron2.config import get_cfg
 from .engine import DefaultTrainer
 from .config import get_cfg
 

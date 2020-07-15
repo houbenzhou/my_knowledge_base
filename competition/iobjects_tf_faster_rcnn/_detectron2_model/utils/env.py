@@ -73,7 +73,7 @@ def _configure_libraries():
         return tuple(map(int, module.__version__.split(".")[:digit]))
 
     # fmt: off
-    assert get_version(torch) >= (1, 4), "Requires torch>=1.4"
+    assert get_version(torch) >= (1, 2), "Requires torch>=1.2"
     import fvcore
     assert get_version(fvcore, 3) >= (0, 1, 1), "Requires fvcore>=0.1.1"
     import yaml
