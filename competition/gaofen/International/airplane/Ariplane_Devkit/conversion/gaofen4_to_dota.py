@@ -15,9 +15,11 @@ def create_annotation(path_label, dota_labels_path):
 
     for label_name in label_names:
         anno_file = os.path.join(path_label, label_name)
-        out_file = os.path.join(dota_labels_path, label_name)
+        label_name1 = str(label_name.split('.')[0]) + '.txt'
 
-        with open(out_file, 'a') as file_out:
+        out_file = os.path.join(dota_labels_path, label_name1)
+
+        with open(out_file, 'w') as file_out:
 
             tree_objects = ET.parse(anno_file)
             tree = tree_objects.find("objects")
@@ -46,11 +48,11 @@ def create_images(path, voc_labels_path, out_path):
     for label_name in label_names:
 
         pic_name = label_name.split('.')
-        if pic_name[-1] == "xml":
+        if pic_name[-1] == "txt":
             pic_name[-1] = 'tif'
             pic_name = str.join(".", pic_name)
         voc_pic_name = label_name.split('.')
-        if voc_pic_name[-1] == "xml":
+        if voc_pic_name[-1] == "txt":
             voc_pic_name[-1] = 'png'
             voc_pic_name = str.join(".", voc_pic_name)
         im = Image.open(os.path.join(path, pic_name))
@@ -64,7 +66,7 @@ def get_parser():
     parser = argparse.ArgumentParser(description="split dota")
     parser.add_argument(
         "--input_dota_path",
-        default="/home/data/hou/workspaces/my_knowledge_base/competition/gaofen/International/airplane/data/train",
+        default="/home/data/hou/workspaces/my_knowledge_base/competition/gaofen/International/airplane/data1/train",
         help="Base path for dota data",
     )
 
