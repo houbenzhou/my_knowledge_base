@@ -23,7 +23,7 @@ def create_annotation(path_label, dota_labels_path):
 
             tree_objects = ET.parse(anno_file)
             tree = tree_objects.find("objects")
-            list_point = []
+
             outline = 'imagesource:GoogleEarth'
             file_out.write(outline + '\n')
             outline = 'gsd:1'
@@ -31,12 +31,16 @@ def create_annotation(path_label, dota_labels_path):
             for obj in tree.findall("object"):
                 cls = obj.find("possibleresult").find('name').text
                 bboxes = obj.find("points").findall("point")
+                list_point = []
                 for bbox in bboxes:
                     list_point.append(bbox.text.split(',')[0])
                     list_point.append(bbox.text.split(',')[1])
-                outline = str(list_point[0]) + ' ' + str(list_point[1]) + ' ' + str(list_point[2]) + ' ' + str(
-                    list_point[3]) + ' ' + str(list_point[4]) + ' ' + str(list_point[5]) + ' ' + str(
-                    list_point[6]) + ' ' + str(list_point[7]) + ' ' + cls + ' ' + str(0)
+                # outline = str(list_point[0]) + ' ' + str(list_point[1]) + ' ' + str(list_point[2]) + ' ' + str(
+                #     list_point[3]) + ' ' + str(list_point[4]) + ' ' + str(list_point[5]) + ' ' + str(
+                #     list_point[6]) + ' ' + str(list_point[7]) + ' ' + cls + ' ' + str(0)
+                outline = str(int(float(list_point[0]))) + ' ' + str(int(float(list_point[1]))) + ' ' + str(int(float(list_point[2]))) + ' ' + str(
+                    int(float(list_point[3]))) + ' ' + str(int(float(list_point[4]))) + ' ' + str(int(float(list_point[5]))) + ' ' + str(
+                    int(float(list_point[6]))) + ' ' + str(int(float(list_point[7]))) + ' ' + cls + ' ' + str(0)
                 file_out.write(outline + '\n')
 
 
