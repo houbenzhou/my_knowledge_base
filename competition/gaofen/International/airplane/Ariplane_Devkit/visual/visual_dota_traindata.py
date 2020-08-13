@@ -33,24 +33,19 @@ def visual_dota(img_path, label_path, out_path):
             if len(label_file_list) >= 8:
                 x = []
                 y = []
-                x.append(float(label_file_list[0]))
-                x.append(float(label_file_list[2]))
-                x.append(float(label_file_list[4]))
-                x.append(float(label_file_list[6]))
-                y.append(float(label_file_list[1]))
-                y.append(float(label_file_list[3]))
-                y.append(float(label_file_list[5]))
-                y.append(float(label_file_list[7]))
-                xmin = min(x)
-                ymin = min(y)
-                xmax = max(x)
-                ymax = max(y)
-                categoty = str(label_file_list[8])
-                draw.line((xmin, ymin, xmax, ymin), fill=(255, 0, 0), width=4)
-                draw.line((xmax, ymin, xmax, ymax), fill=(255, 0, 0), width=4)
-                draw.line((xmax, ymax, xmin, ymax), fill=(255, 0, 0), width=4)
-                draw.line((xmin, ymax, xmin, ymin), fill=(255, 0, 0), width=4)
-                draw.text((xmin, ymin - 44), categoty, fill="#0000ff")
+                x1=float(label_file_list[0])
+                x2=float(label_file_list[2])
+                x3=float(label_file_list[4])
+                x4=float(label_file_list[6])
+                y1=float(label_file_list[1])
+                y2=float(label_file_list[3])
+                y3=float(label_file_list[5])
+                y4=float(label_file_list[7])
+
+                draw.line((x1, y1, x2, y2), fill=(255, 0, 0), width=4)
+                draw.line((x2, y2, x3, y3), fill=(255, 0, 0), width=4)
+                draw.line((x3, y3, x4, y4), fill=(255, 0, 0), width=4)
+                draw.line((x4, y4, x1, y1), fill=(255, 0, 0), width=4)
         img.save(os.path.join(out_path, img_name))
 
 def get_parser():
