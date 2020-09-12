@@ -52,19 +52,19 @@ def get_parser():
     parser = argparse.ArgumentParser(description="dota test visual")
     parser.add_argument(
         "--img_path",
-        default="/home/data/hou/workspaces/my_knowledge_base/competition/gaofen/International/airplane/dota_format/val/images",
+        default="/home/data/hou/workspaces/my_knowledge_base/competition/gaofen/International/airplane/dota_format/test/images",
         help="image data path",
     )
 
     parser.add_argument(
         "--label_path",
-        default='/home/data/hou/workspaces/my_knowledge_base/competition/gaofen/International/airplane/dota_format/val/labelTxt',
+        default='/home/data/hou/workspaces/my_knowledge_base/competition/gaofen/International/airplane/dota_format/test/labelTxt',
         help="label path ",
     )
 
     parser.add_argument(
         "--out_path",
-        default='/home/data/windowdata/temp/2',
+        default='/home/data/windowdata/temp/3',
         help="A directory to save the output images . ",
     )
 

@@ -64,12 +64,12 @@ def get_parser():
     parser = argparse.ArgumentParser(description="dota test visual")
     parser.add_argument(
         "--img",
-        default="/home/data/hou/workspaces/my_knowledge_base/competition/gaofen/International/airplane/data/train/images",
+        default="/home/data/hou/workspaces/my_knowledge_base/competition/gaofen/International/airplane/data1/test/images",
         help="voc image path",
     )
     parser.add_argument(
         "--xml",
-        default="/home/data/hou/workspaces/my_knowledge_base/competition/gaofen/International/airplane/data/train/label_xml",
+        default="/home/data/hou/workspaces/my_knowledge_base/competition/gaofen/International/airplane/dota_format/test/result/submission2",
         help="voc label path",
     )
 
