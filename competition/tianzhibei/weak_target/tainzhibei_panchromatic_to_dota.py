@@ -145,8 +145,8 @@ def split_data(input_img_path, input_label_path, split_images_path, split_label_
         with rasterio.open(input_img_file) as ds:
             height = ds.height
             width = ds.width
-            width_block = ds.width // blocksize + 1
-            height_block = ds.height // blocksize + 1
+            width_block = (ds.width) // tile_offset
+            height_block = (ds.height) // tile_offset
             for i in range(height_block):
                 for j in range(width_block):
                     # split image data
@@ -154,6 +154,13 @@ def split_data(input_img_path, input_label_path, split_images_path, split_label_
                     block_ymin = i * tile_offset
                     block_xmax = block_xmin + blocksize
                     block_ymax = block_ymin + blocksize
+                    if height <= block_ymax:
+                        block_ymin = height - blocksize
+                        block_ymax = height
+                    if width <= block_xmax:
+                        block_xmin = width - blocksize
+                        block_xmax = width
+
                     block = np.zeros([3, blocksize, blocksize], dtype=np.uint8)
                     img = ds.read(window=Window(block_xmin, block_ymin, blocksize, blocksize))
                     block[:, :img.shape[1], :img.shape[2]] = img[:3, :, :]
@@ -170,7 +177,7 @@ def split_data(input_img_path, input_label_path, split_images_path, split_label_
                             x = []
                             y = []
                             x.append(float(bbox[1]))
-                            x.append(float(bbox[2]))
+                            x.append(float(bbox[3]))
                             x.append(float(bbox[5]))
                             x.append(float(bbox[7]))
                             y.append(float(bbox[2]))
@@ -186,16 +193,19 @@ def split_data(input_img_path, input_label_path, split_images_path, split_label_
                                     ymax <= block_ymax + 50):
                                 # if xmin < block_xmin:
                                 #     difficult = True
-                                if (xmin >= block_xmin) & (ymin >= block_ymin) & (xmax <= block_xmax) & (
-                                        ymax <= block_ymax):
-                                    outline = str(
-                                        int(float(bbox[1]))) + ' ' + str(int(float(bbox[2]))) + ' ' + str(
-                                        int(float(bbox[3]))) + ' ' + str(int(float(bbox[4]))) + ' ' + str(
-                                        int(float(bbox[5]))) + ' ' + str(
-                                        int(float(bbox[6]))) + ' ' + str(
-                                        int(float(bbox[7]))) + ' ' + str(int(float(bbox[8]))) + ' ' + bbox[
-                                                  0] + ' ' + str(0)
-                                    file_out.write(outline + '\n')
+                                # if (xmin >= block_xmin) & (ymin >= block_ymin) & (xmax <= block_xmax) & (
+                                #         ymax <= block_ymax):
+                                outline = str(
+                                    int(float(bbox[1] - block_xmin))) + ' ' + str(
+                                    int(float(bbox[2] - block_ymin))) + ' ' + str(
+                                    int(float(bbox[3] - block_xmin))) + ' ' + str(
+                                    int(float(bbox[4] - block_ymin))) + ' ' + str(
+                                    int(float(bbox[5] - block_xmin))) + ' ' + str(
+                                    int(float(bbox[6] - block_ymin))) + ' ' + str(
+                                    int(float(bbox[7] - block_xmin))) + ' ' + str(
+                                    int(float(bbox[8] - block_ymin))) + ' ' + bbox[
+                                              0] + ' ' + str(0)
+                                file_out.write(outline + '\n')
 
 
 def split_data_to_dota(split_images_path, split_label_path, dota_images_path, dota_labels_path):
