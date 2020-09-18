@@ -199,17 +199,86 @@ def split_data(input_img_path, input_label_path, split_images_path, split_label_
                                 #     difficult = True
                                 # if (xmin >= block_xmin) & (ymin >= block_ymin) & (xmax <= block_xmax) & (
                                 #         ymax <= block_ymax):
-                                outline = str(
-                                    int(float(bbox[1] - block_xmin))) + ' ' + str(
-                                    int(float(bbox[2] - block_ymin))) + ' ' + str(
-                                    int(float(bbox[3] - block_xmin))) + ' ' + str(
-                                    int(float(bbox[4] - block_ymin))) + ' ' + str(
-                                    int(float(bbox[5] - block_xmin))) + ' ' + str(
-                                    int(float(bbox[6] - block_ymin))) + ' ' + str(
-                                    int(float(bbox[7] - block_xmin))) + ' ' + str(
-                                    int(float(bbox[8] - block_ymin))) + ' ' + bbox[
-                                              0] + ' ' + str(0)
-                                file_out.write(outline + '\n')
+                                area_bbox = (ymax - ymin) * (xmax - xmin) + 1
+                                if bbox[1] < block_xmin:
+                                    bbox[1] = block_xmin
+                                elif bbox[1] > block_xmax:
+                                    bbox[1] = block_xmax
+                                    difficult = True
+
+                                if bbox[3] < block_xmin:
+                                    bbox[3] = block_xmin
+                                elif bbox[3] > block_xmax:
+                                    bbox[3] = block_xmax
+                                    difficult = True
+
+                                if bbox[5] < block_xmin:
+                                    bbox[5] = block_xmin
+                                elif bbox[5] > block_xmax:
+                                    bbox[5] = block_xmax
+                                    difficult = True
+
+                                if bbox[7] < block_xmin:
+                                    bbox[7] = block_xmin
+                                elif bbox[7] > block_xmax:
+                                    bbox[7] = block_xmax
+                                    difficult = True
+
+                                if bbox[2] < block_ymin:
+                                    bbox[2] = block_ymin
+                                elif bbox[2] > block_ymax:
+                                    bbox[2] = block_ymax
+                                    difficult = True
+
+                                if bbox[4] < block_ymin:
+                                    bbox[4] = block_ymin
+                                elif bbox[4] > block_ymax:
+                                    bbox[4] = block_ymax
+                                    difficult = True
+
+                                if bbox[6] < block_ymin:
+                                    bbox[6] = block_ymin
+                                elif bbox[6] > block_ymax:
+                                    bbox[6] = block_ymax
+                                    difficult = True
+
+                                if bbox[8] < block_ymin:
+                                    bbox[8] = block_ymin
+                                elif bbox[8] > block_ymax:
+                                    bbox[8] = block_ymax
+                                    difficult = True
+                                x = []
+                                y = []
+                                x.append(float(bbox[1]))
+                                x.append(float(bbox[3]))
+                                x.append(float(bbox[5]))
+                                x.append(float(bbox[7]))
+                                y.append(float(bbox[2]))
+                                y.append(float(bbox[4]))
+                                y.append(float(bbox[6]))
+                                y.append(float(bbox[8]))
+                                xmin = min(x)
+                                ymin = min(y)
+                                xmax = max(x)
+                                ymax = max(y)
+                                area_bbox_after = (ymax - ymin) * (xmax - xmin)
+                                if area_bbox_after / area_bbox > 0.5:
+                                    if difficult:
+                                        difficult_level = 1
+                                    else:
+                                        difficult_level = 0
+
+                                    outline = str(
+                                        int(float(bbox[1] - block_xmin))) + ' ' + str(
+                                        int(float(bbox[2] - block_ymin))) + ' ' + str(
+                                        int(float(bbox[3] - block_xmin))) + ' ' + str(
+                                        int(float(bbox[4] - block_ymin))) + ' ' + str(
+                                        int(float(bbox[5] - block_xmin))) + ' ' + str(
+                                        int(float(bbox[6] - block_ymin))) + ' ' + str(
+                                        int(float(bbox[7] - block_xmin))) + ' ' + str(
+                                        int(float(bbox[8] - block_ymin))) + ' ' + bbox[
+                                                  0] + ' ' + str(difficult_level)
+                                    file_out.write(outline + '\n')
 
 
 def split_data_to_dota(split_images_path, split_label_path, dota_images_path, dota_labels_path):
