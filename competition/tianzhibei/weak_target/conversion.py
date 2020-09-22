@@ -38,11 +38,11 @@ def u16_to_u8(in_image, out_image):
     prof = in_f.profile
     prof.update({'dtype': rasterio.uint8})
     with rasterio.open(out_image, 'w', **prof) as wf:
-        wf.write(stretch_n(in_f.read(),0.1,99.9))
+        wf.write(stretch_n(in_f.read(), 0.1, 99.9))
 
 
 if __name__ == '__main__':
     # u16_to_u8()
-    input_path = '/home/data/hou/workspaces/my_knowledge_base/competition/gaofen/International/ship_detection_sar/data_v1/test/images/1.tiff'
-    out_path = '/home/data/hou/workspaces/my_knowledge_base/competition/gaofen/International/ship_detection_sar/data_v1/test/images1/1.tif'
+    input_path = '/home/hou/Desktop/windowdata/temp/科目1-2/科目1-2/03发布数据-光学-全色.tiff'
+    out_path = '/home/data/hou/workspaces/my_knowledge_base/competition/tianzhibei/weak_target/2.tif'
     u16_to_u8(input_path, out_path)
