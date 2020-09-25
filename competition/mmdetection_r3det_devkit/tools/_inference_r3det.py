@@ -25,7 +25,7 @@ class R3detEstimation(object):
         self.tile_size = tile_size
         self.tile_offset = tile_offset
 
-    def estimation_img(self, input_data, out_data, out_name, out_format, nms_thresh=0.3,
+    def estimation_img(self, input_data, out_data, out_name, out_format='', nms_thresh=0.3,
                        score_thresh=0.5):
         """
         进行影像数据目标检测
@@ -37,7 +37,7 @@ class R3detEstimation(object):
 
         return result
 
-    def estimation_dir(self, input_data, out_data_path, out_format, nms_thresh=0.3,
+    def estimation_dir(self, input_data, out_data_path, out_format='', nms_thresh=0.3,
                        score_thresh=0.5):
         """
        input_data为目录,进行影像数据目标检测
@@ -99,10 +99,11 @@ class R3detEstimation(object):
                 single_category_list = []
                 for temp_bbox in all_boxes[classe_name].split('\n'):
                     temp_bbox = temp_bbox.split()
-                    if temp_bbox != []:
-                        rs = map(float, temp_bbox)
-                        temp_bbox = list(rs)
-                        single_category_list.append(temp_bbox)
+                    if (temp_bbox != []):
+                        if float(temp_bbox[5]) >= self.score_thresh:
+                            rs = map(float, temp_bbox)
+                            temp_bbox = list(rs)
+                            single_category_list.append(temp_bbox)
                 single_category_list = np.array(single_category_list)
                 if (single_category_list != np.array([])):
                     keep = self.rnms(single_category_list, nms_thresh)
