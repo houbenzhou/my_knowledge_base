@@ -25,19 +25,19 @@ class R3detEstimation(object):
         self.tile_size = tile_size
         self.tile_offset = tile_offset
 
-    def estimation_img(self, input_data, category_name, out_data, out_name, nms_thresh=0.3,
+    def estimation_img(self, input_data, out_data, out_name, out_format, nms_thresh=0.3,
                        score_thresh=0.5):
         """
         进行影像数据目标检测
         """
 
-        result, _ = self._estimation_img(input_data, category_name, out_data,
-                                         out_name, nms_thresh,
+        result, _ = self._estimation_img(input_data, out_data,
+                                         out_name, out_format, nms_thresh,
                                          score_thresh)
 
         return result
 
-    def estimation_dir(self, input_data, category_name, out_data_path, nms_thresh=0.3,
+    def estimation_dir(self, input_data, out_data_path, out_format, nms_thresh=0.3,
                        score_thresh=0.5):
         """
        input_data为目录,进行影像数据目标检测
@@ -52,7 +52,7 @@ class R3detEstimation(object):
             if self._is_image_file(images_pth):
                 i = i + 1
                 start_time = time.time()
-                _, num_objects = self._estimation_img(images_pth, category_name, out_data_path, out_name, nms_thresh,
+                _, num_objects = self._estimation_img(images_pth, out_data_path, out_name, out_format, nms_thresh,
                                                       score_thresh)
 
                 print('{}:detected {} targets in {:.2f}s'.format(images_pth, num_objects, time.time() - start_time))
@@ -62,13 +62,13 @@ class R3detEstimation(object):
                 # print('{}： is not an images'.format(images_pth))
                 logging.warning('{}： is not an images'.format(images_pth))
 
-    def _estimation_img(self, input_data, category_name, out_data, out_name, nms_thresh=0.3,
+    def _estimation_img(self, input_data, out_data, out_name, out_format, nms_thresh=0.3,
                         score_thresh=0.5):
         """
         进行影像数据目标检测
         """
         self.input_data = input_data
-        self.category_name = category_name
+        self.category_name = self.classes
         self.nms_thresh = nms_thresh
         self.score_thresh = score_thresh
 
@@ -116,9 +116,13 @@ class R3detEstimation(object):
                         mult_categorys_nms[classe_name] += resstr
             # 对all_boxes中所有的框整体去重
             num_objects = 0
+            if out_format == "tianzhi":
+                num_objects = self.write_tainzhi_file(out_data, out_name, mult_categorys_nms, num_objects)
+            elif out_format == "gaofen":
+                num_objects = self.write_gaofen4_file(out_data, out_name, mult_categorys_nms, num_objects)
+            else:
+                num_objects = self.write_origin_file(out_data, out_name, mult_categorys_nms, num_objects)
 
-            # num_objects = self.write_origin_file(out_data, out_name, mult_categorys_nms, num_objects)
-            num_objects = self.write_gaofen4_file(out_data, out_name, mult_categorys_nms, num_objects)
         return 1, num_objects
 
     def _is_image_file(self, input_data):
@@ -164,7 +168,7 @@ class R3detEstimation(object):
         # 执行预测
         model = init_detector(self.cfg, self.model_path, device='cuda:0')
         result = inference_detector(model, block)
-        result2str = self._det2str(result, block_xmin,block_ymin,self.classes)
+        result2str = self._det2str(result, block_xmin, block_ymin, self.classes)
 
         for classe_name in self.classes:
             for result_transform in result2str[classe_name].split('\n'):
@@ -200,7 +204,7 @@ class R3detEstimation(object):
         p4x, p4y = x - wx + hx, y - wy + hy
         return np.stack([p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y, prob], axis=-1)
 
-    def _det2str(self, result,block_xmin,block_ymin, classes):
+    def _det2str(self, result, block_xmin, block_ymin, classes):
         mcls_results = {cls: '' for cls in classes}
         for label in range(len(result)):
             bboxes = result[label]
@@ -209,7 +213,7 @@ class R3detEstimation(object):
                 resstr = '{:.6f} {:.6f} {:.6f} {:.6f} {:.12f} {:.12f}\n'
                 # ps = list(bboxes[i][:-1])
                 # score = float(bboxes[i][-1])
-                bboxes[i][0]=bboxes[i][0]+block_xmin
+                bboxes[i][0] = bboxes[i][0] + block_xmin
                 bboxes[i][1] = bboxes[i][1] + block_ymin
                 resstr = resstr.format(*bboxes[i])
                 mcls_results[cls_name] += resstr
@@ -218,7 +222,6 @@ class R3detEstimation(object):
     def rnms(self, boxes, iou_threshold):
 
         keep = []
-        boxes[:, -1]
         order = boxes[:, -1].argsort()[::-1]
         num = boxes.shape[0]
 
@@ -286,6 +289,19 @@ class R3detEstimation(object):
                         num_objects = num_objects + 1
                         outline = classe_name + ' ' + temp_bbox
                         file_out.write(outline + '\n')
+        return num_objects
+
+    def write_tainzhi_file(self, out_data, out_name, mult_categorys_nms, num_objects):
+        out_data = os.path.join(out_data, out_name + '.txt')
+
+        with open(out_data, 'a') as file_out:
+            for classe_name in self.classes:
+                for temp_bbox in mult_categorys_nms[classe_name].split('\n'):
+                    if temp_bbox.split() != []:
+                        num_objects = num_objects + 1
+                        outline = classe_name + ' ' + temp_bbox
+                        file_out.write(outline + '\n')
+        return num_objects
 
     def write_gaofen4_file(self, out_data, out_name, mult_categorys_nms, num_objects):
         from lxml.etree import Element, SubElement, tostring
@@ -328,6 +344,7 @@ class R3detEstimation(object):
                     temp_bbox = list(rs)
                     bboxes.append(temp_bbox)
             for i in range(len(bboxes)):
+                num_objects = num_objects + 1
                 node_object = SubElement(node_objects, 'object')
 
                 node_coordinate = SubElement(node_object, 'coordinate')
@@ -358,3 +375,4 @@ class R3detEstimation(object):
         xml_ = tostring(node_root, pretty_print=True, encoding='UTF-8')
         with open(out_data, 'wb') as file_out:
             file_out.write(xml_)
+        return num_objects
