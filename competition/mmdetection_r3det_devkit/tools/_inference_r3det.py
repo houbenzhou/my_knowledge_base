@@ -31,7 +31,7 @@ class R3detEstimation(object):
         进行影像数据目标检测
         """
 
-        result, _ = self._estimation_img(input_data, category_name, os.path.join(out_data, out_name) + ".txt",
+        result, _ = self._estimation_img(input_data, category_name, out_data,
                                          out_name, nms_thresh,
                                          score_thresh)
 
@@ -48,11 +48,11 @@ class R3detEstimation(object):
         for image_name in image_datas_list:
             images_pth = os.path.join(input_data, image_name)
             out_name = image_name.split('.')[0]
-            out_data = os.path.join(out_data_path, out_name) + ".txt"
+            # out_data = os.path.join(out_data_path, out_name) + ".txt"
             if self._is_image_file(images_pth):
                 i = i + 1
                 start_time = time.time()
-                _, num_objects = self._estimation_img(images_pth, category_name, out_data, out_name, nms_thresh,
+                _, num_objects = self._estimation_img(images_pth, category_name, out_data_path, out_name, nms_thresh,
                                                       score_thresh)
 
                 print('{}:detected {} targets in {:.2f}s'.format(images_pth, num_objects, time.time() - start_time))
@@ -116,8 +116,9 @@ class R3detEstimation(object):
                         mult_categorys_nms[classe_name] += resstr
             # 对all_boxes中所有的框整体去重
             num_objects = 0
-            num_objects = self.write_origin_file(out_data, mult_categorys_nms, num_objects)
 
+            # num_objects = self.write_origin_file(out_data, out_name, mult_categorys_nms, num_objects)
+            num_objects = self.write_gaofen4_file(out_data, out_name, mult_categorys_nms, num_objects)
         return 1, num_objects
 
     def _is_image_file(self, input_data):
@@ -273,11 +274,93 @@ class R3detEstimation(object):
         sys.stdout.write(r)
         sys.stdout.flush()
 
-    def write_origin_file(self, out_data, mult_categorys_nms, num_objects):
-        with open(out_data, 'a') as file_out:
+    def write_origin_file(self, out_data, out_name, mult_categorys_nms, num_objects):
+        out_data = os.path.join(out_data, out_name + '.txt')
+
+        with open(out_data, 'w') as file_out:
             for classe_name in self.classes:
                 for temp_bbox in mult_categorys_nms[classe_name].split('\n'):
                     if temp_bbox.split() != []:
                         num_objects = num_objects + 1
                         outline = classe_name + ' ' + temp_bbox
                     file_out.write(outline + '\n')
+
+    def write_gaofen4_file(self, out_data, out_name, mult_categorys_nms, num_objects):
+        from lxml.etree import Element, SubElement, tostring
+        out_data = os.path.join(out_data, out_name + '.xml')
+
+        node_root = Element('annotation')
+
+        # SOURCE
+        node_source = SubElement(node_root, 'source')
+        node_filename = SubElement(node_source, 'filename')
+        node_filename.text = '4.tif'
+        node_origin = SubElement(node_source, 'origin')
+        node_origin.text = 'GF2/GF3'
+
+        # RESEARCH
+        node_research = SubElement(node_root, 'research')
+        node_version = SubElement(node_research, 'version')
+        node_version.text = '4.0'
+        node_provider = SubElement(node_research, 'provider')
+        node_provider.text = 'Company/School of team'
+        node_author = SubElement(node_research, 'author')
+        node_author.text = 'team name'
+        node_pluginname = SubElement(node_research, 'pluginname')
+        node_pluginname.text = 'Airplane Detection and Recognition'
+        node_pluginclass = SubElement(node_research, 'pluginclass')
+        node_pluginclass.text = 'Detection'
+        node_time = SubElement(node_research, 'time')
+        node_time.text = '2020-07-2020-11'
+
+        # OBJECTS
+        node_objects = SubElement(node_root, 'objects')
+
+        for label in mult_categorys_nms:
+            # bboxes = mult_categorys_nms[label]
+            cls_name = label
+            bboxes = []
+            for temp_bbox in mult_categorys_nms[label].split('\n'):
+                temp_bbox = temp_bbox.split()
+                if temp_bbox != []:
+                    rs = map(float, temp_bbox)
+                    temp_bbox = list(rs)
+                    bboxes.append(temp_bbox)
+            for i in range(len(bboxes)):
+                node_object = SubElement(node_objects, 'object')
+
+                node_coordinate = SubElement(node_object, 'coordinate')
+                node_coordinate.text = 'pixel'
+                node_type = SubElement(node_object, 'type')
+                node_type.text = 'rectangle'
+                node_description = SubElement(node_object, 'description')
+                node_description.text = 'None'
+                # POSSIBLERESULT
+                node_possibleresult = SubElement(node_object, 'possibleresult')
+                node_name = SubElement(node_possibleresult, 'name')
+                node_name.text = cls_name
+                node_probability = SubElement(node_possibleresult, 'probability')
+                node_probability.text = str(bboxes[i][1])
+                # POINT
+                node_points = SubElement(node_object, 'points')
+                node_point1 = SubElement(node_points, 'point')
+                node_point1.text = str(int(bboxes[i][1])) + ',' + str(int(bboxes[i][2]))
+                node_point2 = SubElement(node_points, 'point')
+                node_point2.text = str(int(bboxes[i][3])) + ',' + str(int(bboxes[i][4]))
+                node_point3 = SubElement(node_points, 'point')
+                node_point3.text = str(int(bboxes[i][5])) + ',' + str(int(bboxes[i][6]))
+                node_point4 = SubElement(node_points, 'point')
+                node_point4.text = str(int(bboxes[i][7])) + ',' + str(int(bboxes[i][8]))
+                node_point5 = SubElement(node_points, 'point')
+                node_point5.text = str(int(bboxes[i][1])) + ',' + str(int(bboxes[i][2]))
+
+        xml_ = tostring(node_root, pretty_print=True, encoding='UTF-8')
+        with open(out_data, 'wb') as file_out:
+            file_out.write(xml_)
+        # with open(out_data, 'a') as file_out:
+        #     for classe_name in self.classes:
+        #         for temp_bbox in mult_categorys_nms[classe_name].split('\n'):
+        #             if temp_bbox.split() != []:
+        #                 num_objects = num_objects + 1
+        #                 outline = classe_name + ' ' + temp_bbox
+        #             file_out.write(outline + '\n')
