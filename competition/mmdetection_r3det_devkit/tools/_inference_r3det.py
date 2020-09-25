@@ -18,7 +18,7 @@ from rasterio.windows import Window
 
 
 class R3detEstimation(object):
-    def __init__(self, model_path, cfg, classes, tile_size=4096, tile_offset=2048):
+    def __init__(self, model_path, cfg, classes, tile_size=512, tile_offset=256):
         self.model_path = model_path
         self.cfg = cfg
         self.classes = classes
@@ -164,7 +164,7 @@ class R3detEstimation(object):
         # 执行预测
         model = init_detector(self.cfg, self.model_path, device='cuda:0')
         result = inference_detector(model, block)
-        result2str = self._det2str(result, self.classes)
+        result2str = self._det2str(result, block_xmin,block_ymin,self.classes)
 
         for classe_name in self.classes:
             for result_transform in result2str[classe_name].split('\n'):
@@ -200,7 +200,7 @@ class R3detEstimation(object):
         p4x, p4y = x - wx + hx, y - wy + hy
         return np.stack([p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y, prob], axis=-1)
 
-    def _det2str(self, result, classes):
+    def _det2str(self, result,block_xmin,block_ymin, classes):
         mcls_results = {cls: '' for cls in classes}
         for label in range(len(result)):
             bboxes = result[label]
@@ -209,6 +209,8 @@ class R3detEstimation(object):
                 resstr = '{:.6f} {:.6f} {:.6f} {:.6f} {:.12f} {:.12f}\n'
                 # ps = list(bboxes[i][:-1])
                 # score = float(bboxes[i][-1])
+                bboxes[i][0]=bboxes[i][0]+block_xmin
+                bboxes[i][1] = bboxes[i][1] + block_ymin
                 resstr = resstr.format(*bboxes[i])
                 mcls_results[cls_name] += resstr
         return mcls_results
@@ -277,13 +279,13 @@ class R3detEstimation(object):
     def write_origin_file(self, out_data, out_name, mult_categorys_nms, num_objects):
         out_data = os.path.join(out_data, out_name + '.txt')
 
-        with open(out_data, 'w') as file_out:
+        with open(out_data, 'a') as file_out:
             for classe_name in self.classes:
                 for temp_bbox in mult_categorys_nms[classe_name].split('\n'):
                     if temp_bbox.split() != []:
                         num_objects = num_objects + 1
                         outline = classe_name + ' ' + temp_bbox
-                    file_out.write(outline + '\n')
+                        file_out.write(outline + '\n')
 
     def write_gaofen4_file(self, out_data, out_name, mult_categorys_nms, num_objects):
         from lxml.etree import Element, SubElement, tostring
@@ -317,7 +319,6 @@ class R3detEstimation(object):
         node_objects = SubElement(node_root, 'objects')
 
         for label in mult_categorys_nms:
-            # bboxes = mult_categorys_nms[label]
             cls_name = label
             bboxes = []
             for temp_bbox in mult_categorys_nms[label].split('\n'):
@@ -357,10 +358,3 @@ class R3detEstimation(object):
         xml_ = tostring(node_root, pretty_print=True, encoding='UTF-8')
         with open(out_data, 'wb') as file_out:
             file_out.write(xml_)
-        # with open(out_data, 'a') as file_out:
-        #     for classe_name in self.classes:
-        #         for temp_bbox in mult_categorys_nms[classe_name].split('\n'):
-        #             if temp_bbox.split() != []:
-        #                 num_objects = num_objects + 1
-        #                 outline = classe_name + ' ' + temp_bbox
-        #             file_out.write(outline + '\n')
