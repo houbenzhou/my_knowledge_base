@@ -95,8 +95,9 @@ class R3detEstimation(object):
                 print('')
                 logging.info('()： Width and height is greater than ()'.format(self.input_data, self.tile_size))
 
-            mult_categorys_nms = {cls: '' for cls in self.classes}
-            for classe_name in self.classes:
+            mult_categorys_dict = {cls: '' for cls in self.classes}
+            mult_categorys_list = []
+            for class_id, classe_name in enumerate(self.classes):
                 single_category_list = []
                 for temp_bbox in all_boxes[classe_name].split('\n'):
                     temp_bbox = temp_bbox.split()
@@ -106,24 +107,55 @@ class R3detEstimation(object):
                             temp_bbox = list(rs)
                             single_category_list.append(temp_bbox)
                 single_category_list = np.array(single_category_list)
+                #
+                # if (single_category_list != np.array([])):
+                #     keep = self.rnms(single_category_list, nms_thresh)
+                #     single_category_list = single_category_list[keep, :]
+                #     bboxes = self.rdets2points(single_category_list)
+                #     for i in range(bboxes.shape[0]):
+                #         resstr = '{:.12f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f}\n'
+                #         ps = list(bboxes[i][:-1])
+                #         score = float(bboxes[i][-1])
+                #         resstr = resstr.format(score, *ps)
+                #         mult_categorys_dict[classe_name] += resstr
                 if (single_category_list != np.array([])):
                     keep = self.rnms(single_category_list, nms_thresh)
                     single_category_list = single_category_list[keep, :]
-                    bboxes = self.rdets2points(single_category_list)
-                    for i in range(bboxes.shape[0]):
-                        resstr = '{:.12f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f}\n'
-                        ps = list(bboxes[i][:-1])
-                        score = float(bboxes[i][-1])
-                        resstr = resstr.format(score, *ps)
-                        mult_categorys_nms[classe_name] += resstr
+                    for single_category_temp in single_category_list:
+                        single_category_temp.tolist()
+                        single_category_temp = single_category_temp.tolist()
+                        single_category_temp.append(class_id)
+                        # single_category_temp = np.array(single_category_temp)
+                        mult_categorys_list.append(single_category_temp)
+            mult_categorys_list = np.array(mult_categorys_list)
+            keep = self.rnms_list(mult_categorys_list, nms_thresh)
+            mult_categorys_list = mult_categorys_list[keep, :]
+
+            bboxes = self.rdets2points_add_class(mult_categorys_list)
+            for i in range(bboxes.shape[0]):
+                resstr = '{:.12f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f}\n'
+                ps = list(bboxes[i][:-2])
+                score = float(bboxes[i][-2])
+                classe_name_temp = self.classes[int(bboxes[i][-2])]
+                resstr = resstr.format(score, *ps)
+                mult_categorys_dict[classe_name_temp] += resstr
+                # mult_categorys_list.append(single_category_list)
+
             # 对all_boxes中所有的框整体去重
             num_objects = 0
             if out_format == "tianzhi":
-                num_objects = self.write_tainzhi_file(out_data, out_name, mult_categorys_nms, num_objects)
+                num_objects = self.write_tainzhi_file(out_data, out_name, mult_categorys_dict, num_objects)
             elif out_format == "gaofen":
-                num_objects = self.write_gaofen4_file(out_data, out_name, mult_categorys_nms, num_objects)
+                num_objects = self.write_gaofen4_file(out_data, out_name, mult_categorys_dict, num_objects)
             else:
-                num_objects = self.write_origin_file(out_data, out_name, mult_categorys_nms, num_objects)
+                num_objects = self.write_origin_file(out_data, out_name, mult_categorys_dict, num_objects)
+
+            # if out_format == "tianzhi":
+            #     num_objects = self.write_tainzhi_file(out_data, out_name, mult_categorys_dict, num_objects)
+            # elif out_format == "gaofen":
+            #     num_objects = self.write_gaofen4_file(out_data, out_name, mult_categorys_dict, num_objects)
+            # else:
+            #     num_objects = self.write_origin_file(out_data, out_name, mult_categorys_dict, num_objects)
 
         return 1, num_objects
 
@@ -209,6 +241,32 @@ class R3detEstimation(object):
         p4x, p4y = x - wx + hx, y - wy + hy
         return np.stack([p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y, prob], axis=-1)
 
+    def rdets2points_add_class(self, rbboxes):
+        """Convert detection results to a list of numpy arrays.
+
+        Args:
+            rbboxes (np.ndarray): shape (n, 6), xywhap encoded
+
+        Returns:
+            rbboxes (np.ndarray): shape (n, 9), x1y1x2y2x3y3x4y4p
+        """
+        x = rbboxes[:, 0]
+        y = rbboxes[:, 1]
+        w = rbboxes[:, 2]
+        h = rbboxes[:, 3]
+        a = rbboxes[:, 4]
+        prob = rbboxes[:, 5]
+        cosa = np.cos(a)
+        sina = np.sin(a)
+        classes = rbboxes[:, 6]
+        wx, wy = w / 2 * cosa, w / 2 * sina
+        hx, hy = -h / 2 * sina, h / 2 * cosa
+        p1x, p1y = x - wx - hx, y - wy - hy
+        p2x, p2y = x + wx - hx, y + wy - hy
+        p3x, p3y = x + wx + hx, y + wy + hy
+        p4x, p4y = x - wx + hx, y - wy + hy
+        return np.stack([p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y, prob, classes], axis=-1)
+
     def _det2str(self, result, block_xmin, block_ymin, classes):
         mcls_results = {cls: '' for cls in classes}
         for label in range(len(result)):
@@ -223,6 +281,56 @@ class R3detEstimation(object):
                 resstr = resstr.format(*bboxes[i])
                 mcls_results[cls_name] += resstr
         return mcls_results
+
+    def rnms_list(self, boxes, iou_threshold):
+
+        keep = []
+        order = boxes[:, -2].argsort()[::-1]
+        num = boxes.shape[0]
+
+        suppressed = np.zeros((num), dtype=np.int)
+
+        for _i in range(num):
+            # if len(keep) >= max_output_size:
+            #     break
+
+            i = order[_i]
+            if suppressed[i] == 1:
+                continue
+            keep.append(i)
+            r1 = ((boxes[i, 0], boxes[i, 1]), (boxes[i, 2], boxes[i, 3]), boxes[i, 4])
+            area_r1 = boxes[i, 2] * boxes[i, 3]
+            for _j in range(_i + 1, num):
+                j = order[_j]
+                if suppressed[i] == 1:
+                    continue
+                r2 = ((boxes[j, 0], boxes[j, 1]), (boxes[j, 2], boxes[j, 3]), boxes[j, 4])
+                area_r2 = boxes[j, 2] * boxes[j, 3]
+                inter = 0.0
+
+                try:
+                    int_pts = cv2.rotatedRectangleIntersection(r1, r2)[1]
+
+                    if int_pts is not None:
+                        order_pts = cv2.convexHull(int_pts, returnPoints=True)
+
+                        int_area = cv2.contourArea(order_pts)
+
+                        inter = int_area * 1.0 / (area_r1 + area_r2 - int_area + 1e-5)
+
+                except:
+                    """
+                      cv2.error: /io/opencv/modules/imgproc/src/intersection.cpp:247:
+                      error: (-215) intersection.size() <= 8 in function rotatedRectangleIntersection
+                    """
+                    # print(r1)
+                    # print(r2)
+                    inter = 0.9999
+
+                if inter >= iou_threshold:
+                    suppressed[j] = 1
+
+        return np.array(keep, np.int64)
 
     def rnms(self, boxes, iou_threshold):
 
