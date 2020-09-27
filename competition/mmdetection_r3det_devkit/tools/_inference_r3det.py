@@ -24,6 +24,7 @@ class R3detEstimation(object):
         self.classes = classes
         self.tile_size = tile_size
         self.tile_offset = tile_offset
+        self.model = init_detector(self.cfg, self.model_path, device='cuda:0')
 
     def estimation_img(self, input_data, out_data, out_name, out_format='', nms_thresh=0.3,
                        score_thresh=0.5):
@@ -167,8 +168,11 @@ class R3detEstimation(object):
         block = cv2.cvtColor(block, cv2.COLOR_RGB2BGR)
 
         # 执行预测
-        model = init_detector(self.cfg, self.model_path, device='cuda:0')
-        result = inference_detector(model, block)
+        # start_time = time.time()
+
+        result = inference_detector(self.model, block)
+        # print('detected targets in {:.2f}s'.format(time.time() - start_time))
+
         result2str = self._det2str(result, block_xmin, block_ymin, self.classes)
 
         for classe_name in self.classes:
@@ -359,7 +363,7 @@ class R3detEstimation(object):
                 node_name = SubElement(node_possibleresult, 'name')
                 node_name.text = cls_name
                 node_probability = SubElement(node_possibleresult, 'probability')
-                node_probability.text = str(bboxes[i][1])
+                node_probability.text = str(bboxes[i][0])
                 # POINT
                 node_points = SubElement(node_object, 'points')
                 node_point1 = SubElement(node_points, 'point')
