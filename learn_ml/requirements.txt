@@ -5,5 +5,5 @@ shapely
 opencv-python
 PyYAML
 lxml
-tensorflow==1.12.0
+tensorflow==1.15.4
 rasterio
