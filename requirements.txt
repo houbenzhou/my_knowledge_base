@@ -1,9 +1,0 @@
-jupyterlab
-pillow
-numpy
-shapely
-opencv-python
-PyYAML
-lxml
-tensorflow==1.15.0
-rasterio
