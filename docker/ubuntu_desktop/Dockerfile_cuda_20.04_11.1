@@ -1,0 +1,110 @@
+# ==================================================================
+# module list
+# ------------------------------------------------------------------
+# ubuntu            20.04
+# cuda              11.1
+# cudnn             8
+# java组件           19012-82392
+# jdk               8
+# lxqt
+
+FROM dorowu/ubuntu-desktop-lxde-vnc:focal-lxqt
+USER root
+ENV SOFTWARE=/headless/Supermap/
+
+COPY ./software/geoai/ $SOFTWARE/
+RUN cp $SOFTWARE/sources.list /etc/apt && \
+    cp $SOFTWARE/resolv.conf  /etc/
+
+# ==================================================================
+# cuda base
+# ------------------------------------------------------------------
+RUN apt-get clean && apt-get -y update --fix-missing  && apt-get update && apt-get install -y --no-install-recommends \
+        gnupg2 curl ca-certificates openjdk-8-jdk  build-essential \
+        apt-utils \
+        aria2 \
+        wget \
+        git \
+        vim \
+        libssl-dev \
+        unzip \
+        unrar  && \
+    curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub | apt-key add - && \
+    echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64 /" > /etc/apt/sources.list.d/cuda.list && \
+    echo "deb https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu2004/x86_64 /" > /etc/apt/sources.list.d/nvidia-ml.list && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm /var/lib/apt/lists/* -vf
+
+
+ENV CUDA_VERSION 11.1.0
+
+# For libraries in the cuda-compat-* package: https://docs.nvidia.com/cuda/eula/index.html#attachment-a
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cuda-cudart-11-1=11.1.74-1 \
+    cuda-compat-11-1 \
+    && ln -s cuda-11.1 /usr/local/cuda && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm /var/lib/apt/lists/* -vf
+
+# Required for nvidia-docker v1
+RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf && \
+    echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
+
+ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
+ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+
+# nvidia-container-runtime
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
+ENV NVIDIA_REQUIRE_CUDA "cuda>=11.1 brand=tesla,driver>=418,driver<419 brand=tesla,driver>=440,driver<441 brand=tesla,driver>=450,driver<451"
+
+
+# ==================================================================
+# cuda dev
+# ------------------------------------------------------------------
+ENV NCCL_VERSION 2.7.8
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cuda-nvml-dev-11-1=11.1.74-1 \
+    cuda-command-line-tools-11-1=11.1.0-1 \
+    cuda-nvprof-11-1=11.1.69-1 \
+    libnpp-dev-11-1=11.1.1.269-1 \
+    cuda-libraries-dev-11-1=11.1.0-1 \
+    cuda-minimal-build-11-1=11.1.0-1 \
+    libnccl-dev=2.7.8-1+cuda11.1 \
+    libcublas-dev-11-1=11.2.1.74-1 \
+    libcusparse-11-1=11.2.0.275-1 \
+    libcusparse-dev-11-1=11.2.0.275-1 \
+    && apt-mark hold libnccl-dev \
+    && rm -rf /var/lib/apt/lists/* && \
+    rm /var/lib/apt/lists/* -vf
+
+ENV LIBRARY_PATH /usr/local/cuda/lib64/stubs
+
+# ==================================================================
+# cuda cudnn8
+# ------------------------------------------------------------------
+ENV CUDNN_VERSION 8.0.4.30
+
+LABEL com.nvidia.cudnn.version="${CUDNN_VERSION}"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libcudnn8=$CUDNN_VERSION-1+cuda11.1 \
+    libcudnn8-dev=$CUDNN_VERSION-1+cuda11.1 \
+    && apt-mark hold libcudnn8 && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm /var/lib/apt/lists/* -vf
+
+# ==================================================================
+# start script
+# ------------------------------------------------------------------
+RUN rm -rf /root/.pip/ && \
+    mkdir -p /root/.pip && \
+    mkdir -p /headless/Supermap/ && \
+    mkdir -p /opt/SuperMap/License/&& \
+    mkdir -p /opt/SuperMap/iobjects/1020/ && \
+    cp $SOFTWARE/pip.conf  /root/.pip/ && \
+    cp $SOFTWARE/supermap_any_2020.lic9d  /opt/SuperMap/License/ && \
+    cp -r $SOFTWARE/Bin  /opt/SuperMap/iobjects/1020/ && \
+    cp $SOFTWARE/pycharm.desktop  /usr/share/applications
+
