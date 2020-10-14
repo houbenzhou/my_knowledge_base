@@ -1,21 +1,17 @@
 # ==================================================================
 # module list
 # ------------------------------------------------------------------
-# ubuntu          18.04
-# idesktop        10i
-# iserver         10i
+# ubuntu           20.04
+# java组件         19012-82392
+# jdk              8
+# lxqt
 
-FROM dorowu/ubuntu-desktop-lxde-vnc
+FROM dorowu/ubuntu-desktop-lxde-vnc:focal-lxqt
 USER root
 ENV SOFTWARE=/headless/Supermap/
 
 COPY ./software/geoai/ $SOFTWARE/
-# ==================================================================
-# 支持中文
-# ------------------------------------------------------------------
-ENV LANG=zh_CN.utf8
-RUN export LANG=$LANG
-USER root
+RUN cp $SOFTWARE/sources.list /etc/apt
 
 # ==================================================================
 # software
@@ -31,12 +27,3 @@ RUN rm -rf /root/.pip/ && \
     cp -r $SOFTWARE/Bin  /opt/SuperMap/iobjects/1010/ && \
     cp $SOFTWARE/pycharm.desktop  /usr/share/applications
 
-# ==================================================================
-# start script
-# ------------------------------------------------------------------
-EXPOSE 80
-WORKDIR /root
-ENV HOME=/home/ubuntu \
-    SHELL=/bin/bash
-HEALTHCHECK --interval=30s --timeout=5s CMD curl --fail http://127.0.0.1:6079/api/health
-ENTRYPOINT ["/startup.sh"]
