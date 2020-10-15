@@ -5,6 +5,15 @@
 # cuda               102
 # jdk                8
 # lxqt
+# docker build  -f  Dockerfile1804_cudabase102_bwg -t ubuntu_desktop_gpu_cudabase102:18.04  .
+# 1_images_name        ubuntu_desktop_gpu_cudabase102:18.04
+# docker build  -f  Dockerfile -t ubuntu_desktop_hou_1804_cuda102:v3_2020_1015  .
+# 1_final_images_name  ubuntu_desktop_hou_1804_cuda102:v3_2020_1015
+
+# docker build  -f  Dockerfile1804_cudabase102_bwg -t ubuntu_desktop_gpu:18.04-lxqt  .
+# 2_images_name        ubuntu_desktop_gpu:18.04-lxqt
+# docker build  -f  Dockerfile -t ubuntu_desktop_hou_1804_cuda102:v3_2020_1015_lxqt  .
+# 2_final_images_name  ubuntu_desktop_hou_1804_cuda102:v3_2020_1015_lxqt
 
 #FROM dorowu/ubuntu-desktop-lxde-vnc:bionic
 FROM dorowu/ubuntu-desktop-lxde-vnc:bionic-lxqt
