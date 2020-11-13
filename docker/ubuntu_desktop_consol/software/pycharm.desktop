@@ -1,0 +1,17 @@
+[Desktop Entry]
+
+Type=Application
+
+Version=2020
+
+Name=pycharm
+
+Comment=Run iServer
+
+Icon=/headless/Supermap/pycharm/bin/pycharm.png
+
+Exec=sh /headless/Supermap/pycharm/bin/pycharm.sh
+
+Terminal=false
+
+Path=/headless/Supermap/pycharm
