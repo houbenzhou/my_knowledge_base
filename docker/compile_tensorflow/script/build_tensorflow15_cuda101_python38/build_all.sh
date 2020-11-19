@@ -1,0 +1,3 @@
+docker stop cuda101_cudnn7_gcc75_bazel026_py38
+docker rm cuda101_cudnn7_gcc75_bazel026_py38
+docker run --gpus all -it -w /tensorflow_src --name cuda101_cudnn7_gcc75_bazel026_py38 -v /home/data/windowdata/temp/tensorflow15:/mnt -v /home/data/hou/workspaces/my_knowledge_base/docker/compile_tensorflow/script/build_tensorflow15_cuda101_python38:/home/data/hou/workspaces/my_knowledge_base/docker/compile_tensorflow/script/build_tensorflow15_cuda101_python38 -e HOST_PERMS="$(id -u):$(id -g)"   houbenzhou/tensorflow_compile:cuda101_cudnn7_gcc75_bazel026_py38 bash /home/data/hou/workspaces/my_knowledge_base/docker/compile_tensorflow/script/build_tensorflow15_cuda101_python38/build_wheel.sh
