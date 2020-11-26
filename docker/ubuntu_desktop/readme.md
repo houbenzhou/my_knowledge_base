@@ -21,6 +21,7 @@ docker run --gpus all -d --net=bridge --restart always --name  ubuntu_desktop_ho
 * --env or -e :设置环境变量
 * -v ：主机目录：容器目录
 
+启动容器镜像时注意：容器内部端口5900是vnc端口，80是novnc端口，-e VNC_PW用来设置vnc登录密码，-e VNC_RESOLUTION用来设置分辨率
 
 ## 需要安装的包
 1、java
