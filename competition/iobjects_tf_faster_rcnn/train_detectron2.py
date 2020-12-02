@@ -12,7 +12,8 @@ import argparse
 
 from competition.iobjects_tf_faster_rcnn._detectron2_model.iobjectspy_tools import get_classname, \
     register_all_pascal_voc
-from competition.iobjects_tf_faster_rcnn._detectron2_model.train_detectron2 import train_iobjectspy_voc
+from competition.iobjects_tf_faster_rcnn._detectron2_model.train_detectron2 import \
+    train_iobjectspy_voc
 
 
 def get_parser():
@@ -26,7 +27,7 @@ def get_parser():
     parser.add_argument(
         "--train_config_path",
         default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/configs/my_experiment/cascade_mask_rcnn_R_50_FPN_1x.yaml',
-        help="path to config file",
+        help="path to configs file",
     )
 
     parser.add_argument(
@@ -37,7 +38,7 @@ def get_parser():
 
     parser.add_argument(
         "--out_dir",
-        default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/out/2020_05_26/dota/model4',
+        default='/home/data/hou/workspaces/my_knowledge_base/competition/iobjects_tf_faster_rcnn/out/2020_11_18/dota/model',
         help="path to output directory",
     )
 

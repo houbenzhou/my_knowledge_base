@@ -9,10 +9,10 @@ from faster_rcnn._detection import FasterRCNNEstimation
 
 def get_config_from_yaml(yaml_file, encoding='utf8'):
     """
-    Get the config from a yml or yaml file
+    Get the configs from a yml or yaml file
     :param yaml_file: 文件路径
     :param encoding: encoding default: utf8
-    :return: config(namespace) or config(dictionary)
+    :return: configs(namespace) or configs(dictionary)
     """
     with open(yaml_file, encoding=encoding) as f:
         config_dict = yaml.load(f, Loader=yaml.FullLoader)
@@ -23,7 +23,7 @@ def get_config_from_yaml(yaml_file, encoding='utf8'):
 def plane_detection(input_data, category_name, model_path, out_data, out_dataset_name,
                     nms_thresh,
                     score_thresh):
-    # config = get_config_from_yaml(model_path)
+    # configs = get_config_from_yaml(model_path)
     config_file = model_path
     model_path = os.path.abspath(os.path.join(model_path, os.path.pardir))
     if category_name is None:
@@ -70,19 +70,19 @@ def get_parser():
     parser = argparse.ArgumentParser(description="tf_faster_rcnn infer")
     parser.add_argument(
         "--input_data",
-        default="/home/data/hou/workspaces/my_knowledge_base/competition/iobjects_tf_faster_rcnn/out/dotav21/images",
+        default="/home/data/hou/workspaces/my_knowledge_base/competition/dota/dotav1_test/images",
         help="A file or directory of input data",
     )
 
     parser.add_argument(
         "--model_path",
-        default='/home/data/hou/workspaces/my_knowledge_base/competition/iobjects_tf_faster_rcnn/out/2020-05-08/1024_s800_4_8_16_32/saved_model/saved_model.sdm',
+        default='/home/data/hou/workspaces/my_knowledge_base/competition/iobjects_tf_faster_rcnn/out/plane/model/saved_model/saved_model.sdm',
         help="A file of model path",
     )
 
     parser.add_argument(
         "--out_data",
-        default='/home/data/hou/workspaces/my_knowledge_base/competition/iobjects_tf_faster_rcnn/out/2020-05-08/1024_s800_4_8_16_32/11',
+        default='/home/data/hou/workspaces/my_knowledge_base/competition/iobjects_tf_faster_rcnn/out',
         help="A directory to save the output inference file. ",
     )
     parser.add_argument(
