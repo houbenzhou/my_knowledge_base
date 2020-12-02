@@ -216,7 +216,7 @@ def _get_bbox(ds, j, i, blocksize, tile_offset, predictor,
 #     parser.add_argument(
 #         "--train_config_path",
 #         default='/home/data/hou/workspaces/detectron2/configs/my_experiment/cascade_mask_rcnn_R_50_FPN_1x.yaml',
-#         help="path to config file",
+#         help="path to configs file",
 #     )
 #
 #     parser.add_argument(
@@ -250,7 +250,7 @@ def get_parser():
     parser.add_argument(
         "--train_config_path",
         default='/home/data/hou/workspaces/detectron2/configs/my_experiment/cascade_mask_rcnn_R_50_FPN_1x.yaml',
-        help="path to config file",
+        help="path to configs file",
     )
 
     parser.add_argument(

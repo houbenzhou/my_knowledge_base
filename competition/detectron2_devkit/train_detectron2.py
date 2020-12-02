@@ -57,7 +57,7 @@ def get_parser():
     parser.add_argument(
         "--train_config_path",
         default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/configs/my_experiment/cascade_mask_rcnn_R_50_FPN_1x.yaml',
-        help="path to config file",
+        help="path to configs file",
     )
 
     parser.add_argument(
@@ -68,7 +68,7 @@ def get_parser():
 
     parser.add_argument(
         "--out_dir",
-        default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/out/2020_05_26/dota/model2',
+        default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/out/2020_05_26/dota/model3',
         help="path to output directory",
     )
 

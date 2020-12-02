@@ -6,9 +6,9 @@ channels:
   - fvcore
 
 dependencies:
+    - cudatoolkit=10.2
     - pytorch
     - torchvision
-    - cudatoolkit=10.1
     - python=3.7
     - pip
     - fvcore

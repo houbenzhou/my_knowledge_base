@@ -36,7 +36,7 @@ def visual_iobjectspy_voc(train_data_path, train_config_path, image_path, regist
 
     from detectron2.utils.visualizer import ColorMode
 
-    # dataset_dicts = get_balloon_dicts(os.path.join(train_dir, 'val'))
+    # dataset_dicts = get_balloon_dicts(os.path.join(train_dir, 'test'))
 
     pic_names = os.listdir(image_path)
     balloon_metadata = MetadataCatalog.get("iobjectspy_voc")
@@ -65,7 +65,7 @@ def get_parser():
     parser.add_argument(
         "--train_config_path",
         default='/home/data/hou/workspaces/detectron2/configs/my_experiment/cascade_mask_rcnn_R_50_FPN_1x.yaml',
-        help="path to config file",
+        help="path to configs file",
     )
 
     parser.add_argument(

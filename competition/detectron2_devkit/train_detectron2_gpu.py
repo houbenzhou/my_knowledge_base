@@ -3,7 +3,7 @@
 """
 Detection Training Script.
 
-This scripts reads a given config file and runs the training or evaluation.
+This scripts reads a given configs file and runs the training or evaluation.
 It is an entry point that is made to train standard models in detectron2.
 
 In order to let one script support training of many models,
@@ -178,7 +178,7 @@ def get_parser():
         argparse.ArgumentParser:
     """
     parser = argparse.ArgumentParser(description="Detectron2 Training")
-    parser.add_argument("--config-file", default="", metavar="FILE", help="path to config file")
+    parser.add_argument("--configs-file", default="", metavar="FILE", help="path to configs file")
     parser.add_argument(
         "--resume",
         action="store_true",
@@ -198,7 +198,7 @@ def get_parser():
     parser.add_argument("--dist-url", default="tcp://127.0.0.1:{}".format(port))
     parser.add_argument(
         "opts",
-        help="Modify config options using the command-line",
+        help="Modify configs options using the command-line",
         default=None,
         nargs=argparse.REMAINDER,
     )
@@ -212,7 +212,7 @@ def get_parser():
     parser.add_argument(
         "--train_config_path",
         default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/configs/my_experiment/cascade_mask_rcnn_R_50_FPN_1x.yaml',
-        help="path to config file",
+        help="path to configs file",
     )
 
     parser.add_argument(
