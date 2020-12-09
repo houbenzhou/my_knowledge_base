@@ -1,0 +1,20 @@
+name: detectron2-gpu
+channels:
+  - pytorch
+  - anaconda
+  - conda-forge
+  - defaults
+dependencies:
+    - pytorch
+    - torchvision
+    - Cython>=0.28.1
+    - cudatoolkit=10.1
+    - fvcore
+    - python=3.6
+    - pip
+    - pip:
+      - opencv-python
+      - tabulate
+      - imagesize
+      - pycocotools
+      - tqbm
