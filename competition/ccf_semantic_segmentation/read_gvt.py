@@ -84,6 +84,11 @@ def probability_plot_to_result_png(input_data, road_grass_th, water_th, output_d
     input_ids = os.listdir(input_data)
     if not os.path.exists(output_data):
         os.makedirs(output_data)
+    color_codes_segobject = {}
+    color_continuous_codes_list = _get_codes_list()
+    for color_codes_id in range(7):
+        color_codes_segobject[color_continuous_codes_list[color_codes_id]] = color_codes_id
+
     for i in input_ids:
         logit = np.load(os.path.join(input_data, i))
         if road_grass_th != 1.0:
@@ -99,14 +104,7 @@ def probability_plot_to_result_png(input_data, road_grass_th, water_th, output_d
             else:
                 logit[:, :, :, 4][logit[:, :, :, 4] > water_th] = 1.0
         res_map = np.squeeze(np.argmax(logit[0, :, :, :], axis=-1)).astype(np.uint8)
-
         im = Image.fromarray(np.uint8(res_map))
-        color_codes_segobject = {}
-
-        color_continuous_codes_list = _get_codes_list()
-        for color_codes_id in range(7):
-            color_codes_segobject[color_continuous_codes_list[color_codes_id]] = color_codes_id
-
         save_pattle_png(im, color_codes_segobject, os.path.join(output_data, i.split(".")[0] + ".png"))
 
 
@@ -116,29 +114,3 @@ if __name__ == '__main__':
     road_grass_th = 0.5
     water_th = 0.5
     probability_plot_to_result_png(input_data, road_grass_th, water_th, output_data)
-
-# input_data = '/home/hou/Desktop/windowdata/temp/connected_component/commit_result/0.595459_r_origin+ske_close8_dilate1_center_r-only_dis6.20b2rmsm/A149304.png'
-# output_data = '/home/data/hou/workspaces/my_knowledge_base/competition/ccf_semantic_segmentation/out/tmp/out_gailvtu'
-# # input_ids = os.listdir(input_data)
-# if not os.path.exists(output_data):
-#     os.makedirs(output_data)
-# im = Image.open(input_data)  # im是Image对象
-# img = np.asarray(im)  #
-# # # img = np.asarray(im)
-# # np.save('test.npy', img)
-# test = Image.fromarray(img, im.mode)
-# im.save("./test1.png")
-# test.save("./test.png")
-# # from scipy import misc
-# #
-# # misc.imsave("./test.png", img)
-# input_data = '/home/data/windowdata/temp/connected_component/gailvtu/A153112.npy'
-# output_data = '/home/data/hou/workspaces/my_knowledge_base/competition/ccf_semantic_segmentation/out/tmp/out_gailvtu'
-# if not os.path.exists(output_data):
-#     os.makedirs(output_data)
-# logit = np.load(input_data)
-#
-# res_map = np.squeeze(np.argmax(logit[0, :, :, :], axis=-1)).astype(np.uint8)
-#
-# im = Image.fromarray(np.uint8(res_map))
-# im.save("./test.png")
