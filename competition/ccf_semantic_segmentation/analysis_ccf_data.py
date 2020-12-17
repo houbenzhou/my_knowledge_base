@@ -5,12 +5,16 @@ import shutil
 import cv2
 import numpy as np
 import rasterio
+import xlrd
+import xlwt
 from PIL import Image
 from tqdm import tqdm
+from xlutils.copy import copy
 
 
 # 统计水体、道路中的连通块数目
-def statis_road_water(mask_path, out_data_path, num_connected_components_w, num_connected_components_r, connectivity,
+def statis_road_water(mask_path, out_data_path, out_xls, num_connected_components_w, num_connected_components_r,
+                      connectivity,
                       ext):
     images = glob.glob(os.path.join(mask_path, '*.' + ext))
 
@@ -59,7 +63,7 @@ def statis_road_water(mask_path, out_data_path, num_connected_components_w, num_
         if np.sum(mask == 3) >= num_connected_components_w:
             water = (mask == 3).astype(np.uint8)  # 01二值化
             num_labels_w, labels_w, stats_w, centers_w = cv2.connectedComponentsWithStats(water,
-                                                                                          connectivity=8,
+                                                                                          connectivity=4,
                                                                                           ltype=cv2.CV_16U)
             water_connect_array = np.append(water_connect_array, num_labels_w)
             num_labels_w_ += num_labels_w
@@ -84,11 +88,43 @@ def statis_road_water(mask_path, out_data_path, num_connected_components_w, num_
             shutil.copyfile(im_f, os.path.join(output_data_path_visual_wr,
                                                file_name + "." + ext))
 
-        if num_labels_w_ > num_connected_components_w:
-            cv2.imwrite(os.path.join(output_data_path_label_w_16,
-                                     file_name + "." + ext), labels_w_)
-            u16_to_u8(os.path.join(output_data_path_label_w_16,
-                                   file_name + "." + ext), os.path.join(output_data_path_label_w_8,
+        # water 分连通域保存图像
+        for ii in range(200):
+            if num_labels_w_==0:
+                pass
+            elif num_labels_w_==0:
+                pass
+            elif num_labels_w_ == ii:
+                if not os.path.exists(os.path.join(output_data_path_label_w_16, str(ii))):
+                    os.makedirs(os.path.join(output_data_path_label_w_16, str(ii)))
+                if not os.path.exists(os.path.join(output_data_path_label_w_8, str(ii))):
+                    os.makedirs(os.path.join(output_data_path_label_w_8, str(ii)))
+                cv2.imwrite(os.path.join(output_data_path_label_w_16, str(ii), file_name + "." + ext), labels_w_)
+                u16_to_u8(os.path.join(output_data_path_label_w_16, str(ii),
+                                       file_name + "." + ext),
+                          os.path.join(output_data_path_label_w_8, str(ii), file_name + "." + ext))
+
+        # road 连通域保存图像
+        for ii in range(200):
+            if num_labels_r_ == 0:
+                pass
+            elif num_labels_r_ == 1:
+                pass
+            elif num_labels_r_ == ii:
+                if not os.path.exists(os.path.join(output_data_path_label_r_16, str(ii))):
+                    os.makedirs(os.path.join(output_data_path_label_r_16, str(ii)))
+                if not os.path.exists(os.path.join(output_data_path_label_r_8, str(ii))):
+                    os.makedirs(os.path.join(output_data_path_label_r_8, str(ii)))
+                cv2.imwrite(os.path.join(output_data_path_label_r_16, str(ii), file_name + "." + ext), labels_r_)
+                u16_to_u8(os.path.join(output_data_path_label_r_16, str(ii),
+                                       file_name + "." + ext),
+                          os.path.join(output_data_path_label_r_8, str(ii), file_name + "." + ext))
+
+        if num_labels_r_ > num_connected_components_r:
+            cv2.imwrite(os.path.join(output_data_path_label_r_16,
+                                     file_name + "." + ext), labels_r_)
+            u16_to_u8(os.path.join(output_data_path_label_r_16,
+                                   file_name + "." + ext), os.path.join(output_data_path_label_r_8,
                                                                         file_name + "." + ext))
 
         if num_labels_r_ > num_connected_components_r:
@@ -102,14 +138,65 @@ def statis_road_water(mask_path, out_data_path, num_connected_components_w, num_
     num, count = np.unique(water_road_connect_array, return_counts=True)
     print("image count:{}".format(water_road_connect_array.size))
     print(dict(zip(num, count)))
-
+    build_xls(out_xls)
     num, count = np.unique(water_connect_array, return_counts=True)
     print("water count:{}".format(water_connect_array.size))
     print(dict(zip(num, count)))
+    write_xls_water(num, count, out_xls)
 
     num, count = np.unique(road_connect_array, return_counts=True)
     print("road count:{}".format(road_connect_array.size))
     print(dict(zip(num, count)))
+    write_xls_road(num, count, out_xls)
+    write_xls_image_num(water_connect_array.size, road_connect_array.size, out_xls)
+
+
+def build_xls(out_xls):
+    wb = xlwt.Workbook()
+    ws = wb.add_sheet('test_auto')
+    ws.write(1, 0, '水体连通域个数')
+    ws.write(2, 0, '水体图片数量')
+    ws.write(3, 0, '道路连通域个数')
+    ws.write(4, 0, '道路图片数量')
+
+    wb.save(out_xls)
+
+
+def write_xls_water(num, count, out_xls):
+    for str_ind, str_i in enumerate(num):
+        # print("list_temp123:", list_temp)
+        rb = xlrd.open_workbook(out_xls)
+        wb = copy(rb)
+        sheet = wb.get_sheet(0)
+        sheet.write(1, str_ind + 1, int(str_i))
+        sheet.write(2, str_ind + 1, int(count[str_ind]))
+
+        os.remove(out_xls)
+        wb.save(out_xls)
+
+
+def write_xls_road(num, count, out_xls):
+    for str_ind, str_i in enumerate(num):
+        # print("list_temp123:", list_temp)
+        rb = xlrd.open_workbook(out_xls)
+        wb = copy(rb)
+        sheet = wb.get_sheet(0)
+        sheet.write(3, str_ind + 1, int(str_i))
+        sheet.write(4, str_ind + 1, int(count[str_ind]))
+        os.remove(out_xls)
+        wb.save(out_xls)
+
+
+def write_xls_image_num(water_images_num, road_images_num, out_xls):
+    rb = xlrd.open_workbook(out_xls)
+    wb = copy(rb)
+    sheet = wb.get_sheet(0)
+    sheet.write(5, 0, 'water_images_num')
+    sheet.write(6, 0, 'road_images_num')
+    sheet.write(5, 1, water_images_num)
+    sheet.write(6, 1, road_images_num)
+    os.remove(out_xls)
+    wb.save(out_xls)
 
 
 def stretch_n(bands, lower_percent=1, higher_percent=99, tile_h=15000, tile_w=15000):
@@ -199,8 +286,14 @@ def image_image_stitching(input_mask_path, input_origin_path, out_data_path):
 
 if __name__ == '__main__':
     # 可视化分析预测结果中道路或者水体连通域大于1的情况,并保存8
-    input_data_path = '/home/data/hou/workspaces/my_knowledge_base/competition/ccf_semantic_segmentation/input_data/results/results'
     input_origin_path = '/home/hou/Desktop/windowdata/temp/connected_component/img_testA'
+    input_data_path_ = '/home/hou/Desktop/windowdata/temp/connected_component/commit_result/3/6480_2020_12_17/'
+    input_data_path = os.path.join(input_data_path_, 'results')
+
+    output_data_path_ = '/home/hou/Desktop/windowdata/temp/connected_component/commit_result/3/6480_2020_12_17/'
+
+    output_data_path = os.path.join(output_data_path_, 'out')
+    out_xls = os.path.join(output_data_path, 'test.xls')
     # 每幅影像中水体或者道路的个数
     num_connected_components_w = 1
     num_connected_components_r = 1
@@ -208,7 +301,6 @@ if __name__ == '__main__':
     connectivity = 8
 
     # out_dir and create_out_dir
-    output_data_path = '/home/data/hou/workspaces/my_knowledge_base/competition/ccf_semantic_segmentation/out/tmp'
     output_origin_path = os.path.join(output_data_path, 'origin_wr')
 
     if not os.path.exists(output_data_path):
@@ -217,13 +309,14 @@ if __name__ == '__main__':
         os.makedirs(output_origin_path)
 
     # 可视化分析预测结果中道路或者水体连通域大于1的情况,并单独提取出水体以及道路分别进行分析。
-    # statis_road_water(
-    #     input_data_path, output_data_path, num_connected_components_w, num_connected_components_r, connectivity,
-    #     "png")
+    statis_road_water(
+        input_data_path, output_data_path, out_xls, num_connected_components_w, num_connected_components_r,
+        connectivity,
+        "png")
     input_mask_path = os.path.join(output_data_path, 'visual_wr')
 
     # 从待分析的mask数据中获取原始影像
-    # from_mask_data_get_origin_data(input_mask_path, input_origin_path, output_origin_path)
+    from_mask_data_get_origin_data(input_mask_path, input_origin_path, output_origin_path)
 
     # 将原始影像与mask进行拼接
     out_image_stitching_wr = os.path.join(output_data_path, "image_stitching_wr")
@@ -235,15 +328,46 @@ if __name__ == '__main__':
     out_image_stitching_w = os.path.join(output_data_path, "image_stitching_w")
     if not os.path.exists(out_image_stitching_w):
         os.makedirs(out_image_stitching_w)
-    input_mask_path = '/home/data/hou/workspaces/my_knowledge_base/competition/ccf_semantic_segmentation/out/tmp/water/8'
+    input_mask_path = os.path.join(output_data_path, 'water', '8')
     image_image_stitching(input_mask_path, input_origin_path, out_image_stitching_w)
 
     # 将道路mask与原始影像进行拼接
     out_image_stitching_r = os.path.join(output_data_path, "image_stitching_r")
     if not os.path.exists(out_image_stitching_r):
         os.makedirs(out_image_stitching_r)
-    input_mask_path = '/home/data/hou/workspaces/my_knowledge_base/competition/ccf_semantic_segmentation/out/tmp/road/8'
+    input_mask_path = os.path.join(output_data_path, 'road', '8')
     image_image_stitching(input_mask_path, input_origin_path, out_image_stitching_r)
+
+    #
+    output_data_path_label_w = os.path.join(output_data_path, 'water')
+    output_data_path_label_r = os.path.join(output_data_path, 'road')
+    # 将连通域处理过后的水体图像转为8位
+    output_data_path_label_w_8 = os.path.join(output_data_path_label_w, '8')
+    # 将连通域处理过后的水体图像转为8位
+    output_data_path_label_r_8 = os.path.join(output_data_path_label_r, '8')
+    for ii in range(200):
+
+        if not os.path.exists(os.path.join(output_data_path_label_w_8, str(ii))):
+            pass
+        else:
+            out_image_stitching_r = os.path.join(output_data_path, "image_stitching_w_the", str(ii))
+            if not os.path.exists(out_image_stitching_r):
+                os.makedirs(out_image_stitching_r)
+            image_image_stitching(os.path.join(output_data_path_label_w_8, str(ii)),
+                                  input_origin_path,
+                                  out_image_stitching_r)
+
+    for ii in range(200):
+
+        if not os.path.exists(os.path.join(output_data_path_label_r_8, str(ii))):
+            pass
+        else:
+            out_image_stitching_r = os.path.join(output_data_path, "image_stitching_r_the", str(ii))
+            if not os.path.exists(out_image_stitching_r):
+                os.makedirs(out_image_stitching_r)
+            image_image_stitching(os.path.join(output_data_path_label_r_8, str(ii)),
+                                  input_origin_path,
+                                  out_image_stitching_r)
 
     # 可视化分析训练数据中道路或者水体大于1的情况
     #

@@ -91,18 +91,18 @@ def probability_plot_to_result_png(input_data, road_grass_th, water_th, output_d
 
     for i in input_ids:
         logit = np.load(os.path.join(input_data, i))
-        if road_grass_th != 1.0:
-            if road_grass_th > 0.5:
-                logit[:, :, :, 4][logit[:, :, :, 4] < road_grass_th] = 0.0
-                # logit[:,:,:,5][logit[:, :, :, 5] < road_grass_th] = 0.0
-            else:
-                logit[:, :, :, 4][logit[:, :, :, 4] > road_grass_th] = 1.0
-        if water_th != 1.0:
-            if water_th > 0.5:
-                logit[:, :, :, 4][logit[:, :, :, 4] < water_th] = 0.0
-                # logit[:,:,:,5][logit[:, :, :, 5] < road_grass_th] = 0.0
-            else:
-                logit[:, :, :, 4][logit[:, :, :, 4] > water_th] = 1.0
+
+        if road_grass_th > 0.5:
+            logit[:, :, :, 4][logit[:, :, :, 4] < road_grass_th] = 0.0
+            # logit[:,:,:,5][logit[:, :, :, 5] < road_grass_th] = 0.0
+        else:
+            logit[:, :, :, 4][logit[:, :, :, 4] > road_grass_th] = 1.0
+
+        if water_th > 0.5:
+            logit[:, :, :, 4][logit[:, :, :, 4] < water_th] = 0.0
+            # logit[:,:,:,5][logit[:, :, :, 5] < road_grass_th] = 0.0
+        else:
+            logit[:, :, :, 4][logit[:, :, :, 4] > water_th] = 1.0
         res_map = np.squeeze(np.argmax(logit[0, :, :, :], axis=-1)).astype(np.uint8)
         im = Image.fromarray(np.uint8(res_map))
         save_pattle_png(im, color_codes_segobject, os.path.join(output_data, i.split(".")[0] + ".png"))
@@ -114,3 +114,6 @@ if __name__ == '__main__':
     road_grass_th = 0.5
     water_th = 0.5
     probability_plot_to_result_png(input_data, road_grass_th, water_th, output_data)
+
+
+
