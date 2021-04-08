@@ -30,6 +30,26 @@ docker run --gpus all -e LANG=en_US.UTF-8  -d --net=bridge --restart always --na
 3、pycharm
 4、ssr
 
+##中文支持
+
+echo "Install some common tools for further installation"
+apt-get update 
+apt-get install -y vim wget net-tools locales bzip2 \
+    python-numpy #used for websockify/novnc
+apt-get clean -y
+
+echo "generate locales für en_US.UTF-8"
+locale-gen en_US.UTF-8
+
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+https://github.com/Calipsoplus/base-container-template/blob/master/src/ubuntu/install/tools.sh
+
+echo "Installing ttf-wqy-zenhei"
+apt-get install -y ttf-wqy-zenhei
+https://github.com/Calipsoplus/base-container-template/blob/master/src/ubuntu/install/install_custom_fonts.sh
+
+
+
 
 
 
