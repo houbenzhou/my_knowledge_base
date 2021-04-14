@@ -87,19 +87,19 @@ def get_parser():
     parser = argparse.ArgumentParser(description="dota test visual")
     parser.add_argument(
         "--img_path",
-        default="/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800_gsd/VOC/Images",
+        default=r"E:\workspaces\data\0_object_detection_data\1_dotav2\0_dota_v2_800\VOC\Images",
         help="image data path",
     )
 
     parser.add_argument(
         "--label_path",
-        default='/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800_gsd/VOC/Annotations',
+        default=r'E:\workspaces\data\0_object_detection_data\1_dotav2\0_dota_v2_800\VOC\Annotations',
         help="label path ",
     )
 
     parser.add_argument(
         "--out_path",
-        default='/home/data/windowdata/temp/visual_voc',
+        default=r'E:\workspaces\data\0_object_detection_data\1_dotav2\0_dota_v2_800\visual',
         help="A directory to save the output images . ",
     )
 
