@@ -1,0 +1,41 @@
+name: pytorch17_gpu_test_cuda101_tensorflow15
+channels:
+  - pytorch
+  - anaconda
+  - conda-forge
+  - defaults
+dependencies:
+  - numpy
+  - pandas
+  - pandas-datareader
+  - py4j
+  - tensorflow-gpu=1.15.0
+  - PyYAML
+  - cudatoolkit=10.1.243
+  - pillow
+  - xarray
+  - geojson
+  - easydict
+  - scipy
+  - imgaug
+  - albumentations
+  - keras=2.3.1
+  - lxml
+  - protobuf
+  - pytorch=1.7.0
+  - torchaudio=0.7.0
+  - torchvision=0.8.1
+  - efficientnet-pytorch
+  - scikit-learn
+  - python=3.6.9
+  - pip
+  - pip:
+      - opencv-python
+      - matplotlib
+      - dotmap
+      - pretrainedmodels
+      - xgboost
+      - crfpy
+      - geoai-gdal
+      - geoai-rasterio
+

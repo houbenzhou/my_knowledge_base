@@ -326,8 +326,8 @@ if __name__ == '__main__':
 
     dataset_dicts = load_voc_instances(train_data_path, split, class_names)
 
-    # conunt_instances_class_number(dataset_dicts, class_names)
+    conunt_instances_class_number(dataset_dicts, class_names)
 
-    # count_instances_class_small_middle_large_number(dataset_dicts, class_names)
+    count_instances_class_small_middle_large_number(dataset_dicts, class_names)
 
     count_instances_class_aspect_ratio_number(dataset_dicts, class_names)
