@@ -152,21 +152,21 @@ def copy_voc2coco(main_label_name, input_voc_img_path, input_voc_label_oath, out
 if __name__ == "__main__":
 
     # 传入VOC文件夹，按照main中的txt将图像分别拷贝到coco图像数据中，然后分别写入两个临时文件夹，分别传入convert，生成json
-    voc_path = '/home/data/hou/workspaces/Yet-Another-EfficientDet-Pytorch/datasets/datasets/VOC2028'
+    voc_path = '/home/data/windowdata/data/detectionDataset/VOC2007/VOC2007'
     temp_path = '/home/data/windowdata/data/detectionDataset/VOC2007/temp'
-    coco_path = '/home/data/hou/workspaces/Yet-Another-EfficientDet-Pytorch/datasets/datasets/hat_coco'
+    coco_path = '/home/data/windowdata/data/detectionDataset/VOC2007/voc2007_coco'
     # voc
     voc_img_path = os.path.join(voc_path, "JPEGImages")
     # 如果利用组件中的VOC 需要修改voc_img_path JPEGImages改为Images
     voc_label_path = os.path.join(voc_path, "Annotations")
-    voc_trainval_label_name = os.path.join(voc_path, "ImageSets", "Main", 'train_val.txt')
+    voc_trainval_label_name = os.path.join(voc_path, "ImageSets", "Main", 'trainval.txt')
     voc_test_label_name = os.path.join(voc_path, "ImageSets", "Main", "test.txt")
     # temp
     temp_train_path = os.path.join(temp_path, "Annotations")
     temp_val_path = os.path.join(temp_path, "Annotations")
     # coco
     coco_train_img_path = os.path.join(coco_path, "train")
-    coco_val_img_path = os.path.join(coco_path, "val")
+    coco_val_img_path = os.path.join(coco_path, "test")
     coco_annotations_path = os.path.join(coco_path, "annotations")
     coco_train_json = os.path.join(coco_annotations_path, "instances_train.json")
     coco_val_json = os.path.join(coco_annotations_path, "instances_val.json")
@@ -185,13 +185,13 @@ if __name__ == "__main__":
     # 通过voc中main文件夹中的信息将voc中img文件拷贝到coco的img文件夹，将voc中标签拷贝到temp_label文件夹
     # train
     copy_voc2coco(voc_trainval_label_name, voc_img_path, voc_label_path, coco_train_img_path, temp_train_path)
-    # val
+    # # test
     copy_voc2coco(voc_test_label_name, voc_img_path, voc_label_path, coco_val_img_path, temp_val_path)
 
     # 生成coco的json标签文件
     temp_train_files = glob.glob(os.path.join(temp_train_path, "*.xml"))
     temp_val_files = glob.glob(os.path.join(temp_val_path, "*.xml"))
     print("Number of train xml files: {}".format(len(temp_train_files)))
-    print("Number of val xml files: {}".format(len(temp_val_files)))
+    print("Number of test xml files: {}".format(len(temp_val_files)))
     convert(temp_train_files, coco_train_json)
     convert(temp_val_files, coco_val_json)

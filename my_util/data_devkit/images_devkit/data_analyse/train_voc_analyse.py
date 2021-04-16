@@ -320,14 +320,14 @@ def count_instances_class_aspect_ratio_number(dataset_dicts, class_names):
 
 if __name__ == '__main__':
     # train_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/newVoc/VOC"
-    train_data_path = r"E:\workspaces\data\0_object_detection_data\1_dotav2\0_dota_v2_600\VOC"
+    train_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/VOC"
     split = "trainval"
     class_names = get_classname(train_data_path)
 
     dataset_dicts = load_voc_instances(train_data_path, split, class_names)
 
     conunt_instances_class_number(dataset_dicts, class_names)
-    #
+
     count_instances_class_small_middle_large_number(dataset_dicts, class_names)
 
     count_instances_class_aspect_ratio_number(dataset_dicts, class_names)
