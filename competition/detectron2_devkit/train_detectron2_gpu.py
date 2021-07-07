@@ -3,7 +3,7 @@
 """
 Detection Training Script.
 
-This scripts reads a given configs file and runs the training or evaluation.
+This scripts reads a given config file and runs the training or evaluation.
 It is an entry point that is made to train standard models in detectron2.
 
 In order to let one script support training of many models,
@@ -178,7 +178,7 @@ def get_parser():
         argparse.ArgumentParser:
     """
     parser = argparse.ArgumentParser(description="Detectron2 Training")
-    parser.add_argument("--configs-file", default="", metavar="FILE", help="path to configs file")
+    parser.add_argument("--config-file", default="", metavar="FILE", help="path to config file")
     parser.add_argument(
         "--resume",
         action="store_true",
@@ -186,7 +186,7 @@ def get_parser():
         help="whether to attempt to resume from the checkpoint directory",
     )
     parser.add_argument("--eval-only", action="store_true", help="perform evaluation only")
-    parser.add_argument("--num-gpus", type=int, default=1, help="number of gpus *per machine*")
+    parser.add_argument("--num-gpus", type=int, default=2, help="number of gpus *per machine*")
     parser.add_argument("--num-machines", type=int, default=1)
     parser.add_argument(
         "--machine-rank", type=int, default=0, help="the rank of this machine (unique per machine)"
@@ -198,39 +198,38 @@ def get_parser():
     parser.add_argument("--dist-url", default="tcp://127.0.0.1:{}".format(port))
     parser.add_argument(
         "opts",
-        help="Modify configs options using the command-line",
+        help="Modify config options using the command-line",
         default=None,
         nargs=argparse.REMAINDER,
     )
 
     parser.add_argument(
         "--train_data_path",
-        default="/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/VOC",
+        default="/home/data1/hou/workspaces/iobjectspy_master/resources_ml/out/picture_cascade_rcnn_plane/VOC",
         help="path to train data directory",
     )
 
     parser.add_argument(
         "--train_config_path",
         default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/configs/my_experiment/cascade_mask_rcnn_R_50_FPN_1x.yaml',
-        help="path to configs file",
+        help="path to config file",
     )
 
     parser.add_argument(
         "--weight_path",
-        default='/home/data/hou/workspaces/detectron2/data/model/model/ablations_for_deformable_conv_and_cascade_rcnn/cascade_mask_rcnn_R_50_FPN_3x/model_final_480dd8.pkl',
+        default='/home/data1/hou/workspaces/iobjectspy_master/resources_ml/backbone/R-50.pkl',
         help="path to pre training model ",
     )
-
     parser.add_argument(
         "--out_dir",
-        default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_devkit/out/2020_05_26/dota/model2',
+        default='/home/data/hou/workspaces/my_knowledge_base/competition/detectron2_resnest_devkit/out/model50',
         help="path to output directory",
     )
 
     parser.add_argument(
         "--max_iter",
         type=int,
-        default=1000,
+        default=100000,
         help="max iter",
     )
 
@@ -251,6 +250,7 @@ def get_parser():
         default="dota_splite800_2020_07_01",
         help="experiment tag",
     )
+
     return parser
 
 

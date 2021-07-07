@@ -16,7 +16,7 @@ def load_voc_instances(dirname: str, split: str, class_names: list):
 
     Args:
         dirname: Contain "Annotations", "ImageSets", "JPEGImages"
-        split (str): one of "train", "test", "test", "trainval"
+        split (str): one of "train", "test", "val", "trainval"
     """
     with PathManager.open(os.path.join(dirname, "ImageSets", "Main", split + ".txt")) as f:
         fileids = np.loadtxt(f, dtype=np.str)
@@ -73,7 +73,7 @@ def register_all_pascal_voc(train_data_path="datasets", class_names=None):
     SPLITS = [
         (data_path_name + "_trainval", "iobjectspy_voc", "trainval"),
         (data_path_name + "_train", "iobjectspy_voc", "train"),
-        (data_path_name + "_val", "iobjectspy_voc", "test"),
+        (data_path_name + "_val", "iobjectspy_voc", "val"),
         (data_path_name + "_test", "iobjectspy_voc", "test"),
     ]
     for name, dirname, split in SPLITS:
@@ -90,7 +90,7 @@ def get_classname(train_data_path):
         config_dict = yaml.load(f, Loader=yaml.FullLoader)
         voc_config = DotMap(config_dict)
         classes = voc_config.dataset.get('classes')
-        del(classes[0])
+
     return classes
 
 
@@ -100,5 +100,5 @@ def get_class_num(train_data_path):
         config_dict = yaml.load(f, Loader=yaml.FullLoader)
         voc_config = DotMap(config_dict)
         classes = voc_config.dataset.get('classes')
-        num = len(classes) - 1
+        num = len(classes)
     return num
