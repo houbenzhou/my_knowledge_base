@@ -2,6 +2,17 @@ import os
 from  shutil import copyfile
 
 def copy_file_path(source_path, out_path,prefix=None):
+    """
+    方法将原路径中后缀格式为prefix的文件拷贝到out_path中
+
+    :param source_path: 原文件路径
+    :type source_path: str
+    :param out_path:  输出文件路径
+    :type out_path: str
+    :param prefix: 后缀
+    :type prefix: str
+
+    """
     source_filenames=os.listdir(source_path)
     if not os.path.exists(out_path):
         os.makedirs(out_path)
@@ -31,8 +42,8 @@ if __name__ == '__main__':
     # source_path=r''
     # out_path = r''
     # copy_file_path(source_path, out_path,'.json')
-    source_path=r''
-    delete_file_path(source_path,'.json')
+    source_path=r'C:\Users\houbenzhou\Ultimate'
+    delete_file_path(source_path,'mobi')
 
 
 
