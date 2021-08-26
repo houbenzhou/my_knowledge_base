@@ -1,0 +1,11 @@
+#  docker build  -f  Dockerfile_conda492_py38_ubuntu18 -t houbenzhou/conda:dockerfile_conda492_py38_ubuntu18  .
+
+FROM tzb2_conda:base
+
+RUN rm -rf /opt/conda
+ADD ./conda  /opt/conda/
+ADD ./setconda.sh  /opt/
+
+RUN cd /opt/ && sh setconda.sh
+RUN echo "export PATH=$PATH:/opt/conda/bin" >> ~/.bashrc && source ~/.bashrc
+
