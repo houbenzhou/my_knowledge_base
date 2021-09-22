@@ -1,6 +1,10 @@
-#  docker build  -f  Dockerfile_conda492_py38_ubuntu18 -t houbenzhou/conda:dockerfile_conda492_py38_ubuntu18  .
+#  docker build  -f  Dockerfile_copy_myconda -t houbenzhou/conda:copy_conda_tzb2  .
+# docker run --gpus all -name test_tzb2_conda -itd -v /home:/home  tzb2_conda:base
+# docker exec -it test_tzb2_conda /bin/bash
+# docker rm test_tzb2_conda
 
-FROM tzb2_conda:base
+
+FROM houbenzhou/conda:dockerfile_conda492_py38_ubuntu18_20210916
 
 RUN rm -rf /opt/conda
 ADD ./conda  /opt/conda/
