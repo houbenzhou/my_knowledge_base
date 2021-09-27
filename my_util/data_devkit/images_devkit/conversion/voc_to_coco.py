@@ -61,13 +61,15 @@ def get_categories(xml_files):
 
 
 def convert(xml_files, json_file):
-    json_dict = {"images": [], "type": "instances", "annotations": [], "categories": []}
+    # json_dict = {"images": [], "type": "instances", "annotations": [], "categories": []}
     if PRE_DEFINE_CATEGORIES is not None:
         categories = PRE_DEFINE_CATEGORIES
     else:
         categories = get_categories(xml_files)
     bnd_id = START_BOUNDING_BOX_ID
+    json_fp = open(json_file, "w")
     for xml_file in xml_files:
+        json_dict = {"images": [], "type": "instances", "annotations": [], "categories": []}
         tree = ET.parse(xml_file)
         root = tree.getroot()
         path = get(root, "path")
@@ -99,8 +101,8 @@ def convert(xml_files, json_file):
                 categories[category] = new_id
             category_id = categories[category]
             bndbox = get_and_check(obj, "bndbox", 1)
-            xmin = int(get_and_check(bndbox, "xmin", 1).text) - 1
-            ymin = int(get_and_check(bndbox, "ymin", 1).text) - 1
+            xmin = int(get_and_check(bndbox, "xmin", 1).text)
+            ymin = int(get_and_check(bndbox, "ymin", 1).text)
             xmax = int(get_and_check(bndbox, "xmax", 1).text)
             ymax = int(get_and_check(bndbox, "ymax", 1).text)
             assert xmax > xmin
@@ -120,14 +122,13 @@ def convert(xml_files, json_file):
             json_dict["annotations"].append(ann)
             bnd_id = bnd_id + 1
 
-    for cate, cid in categories.items():
-        cat = {"supercategory": "none", "id": cid, "name": cate}
-        json_dict["categories"].append(cat)
+        for cate, cid in categories.items():
+            cat = {"supercategory": "none", "id": cid, "name": cate}
+            json_dict["categories"].append(cat)
 
-    os.makedirs(os.path.dirname(json_file), exist_ok=True)
-    json_fp = open(json_file, "w")
-    json_str = json.dumps(json_dict)
-    json_fp.write(json_str)
+        os.makedirs(os.path.dirname(json_file), exist_ok=True)
+        json_str = json.dumps(json_dict)
+        json_fp.write(json_str)
     json_fp.close()
 
 
@@ -152,18 +153,18 @@ def copy_voc2coco(main_label_name, input_voc_img_path, input_voc_label_oath, out
 if __name__ == "__main__":
 
     # 传入VOC文件夹，按照main中的txt将图像分别拷贝到coco图像数据中，然后分别写入两个临时文件夹，分别传入convert，生成json
-    voc_path = '/home/data/windowdata/data/detectionDataset/VOC2007/VOC2007'
-    temp_path = '/home/data/windowdata/data/detectionDataset/VOC2007/temp'
-    coco_path = '/home/data/windowdata/data/detectionDataset/VOC2007/voc2007_coco'
+    voc_path = r'E:\workspaces\iobjectspy_master\resources_ml\out\tainzhibei2\tzb2_airplane_voc_v0_20210803\splite_voc_600_500'
+    temp_path = r'E:\workspaces\iobjectspy_master\resources_ml\out\tainzhibei2\tzb2_airplane_voc_v0_20210803\splite_voc_600_500_temp'
+    coco_path = r'E:\workspaces\iobjectspy_master\resources_ml\out\tainzhibei2\tzb2_airplane_voc_v0_20210803\splite_voc_600_500_coco'
     # voc
-    voc_img_path = os.path.join(voc_path, "JPEGImages")
+    voc_img_path = os.path.join(voc_path, "Images")
     # 如果利用组件中的VOC 需要修改voc_img_path JPEGImages改为Images
     voc_label_path = os.path.join(voc_path, "Annotations")
     voc_trainval_label_name = os.path.join(voc_path, "ImageSets", "Main", 'trainval.txt')
     voc_test_label_name = os.path.join(voc_path, "ImageSets", "Main", "test.txt")
     # temp
-    temp_train_path = os.path.join(temp_path, "Annotations")
-    temp_val_path = os.path.join(temp_path, "Annotations")
+    temp_train_path = os.path.join(temp_path, "Annotations_train")
+    temp_val_path = os.path.join(temp_path, "Annotations_val")
     # coco
     coco_train_img_path = os.path.join(coco_path, "train")
     coco_val_img_path = os.path.join(coco_path, "test")
