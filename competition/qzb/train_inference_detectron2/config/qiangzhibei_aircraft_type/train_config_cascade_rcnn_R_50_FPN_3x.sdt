@@ -1,0 +1,19 @@
+application:
+  name: object_detection
+framework:
+  name: pytorch
+model:
+  name: cascade_rcnn
+  backbone_name: res50
+  backbone_file: R_50.pkl
+  default_config: cascade_rcnn_R_50_FPN_3x
+trainer:
+    model.weights: "detectron2://ImageNetPretrained/MSRA/R-50.pkl"
+    model.mask_on: False
+    model.meta_architecture: "GeneralizedRCNN"
+    model.backbone.name: "build_resnet_fpn_backbone"
+    model.resnets.depth: 50
+    model.anchor_generator.sizes: [[32], [64], [128], [256], [512]]  # One size for each in feature map
+    model.anchor_generator.aspect_ratios: [[0.5, 1.0, 2.0]]
+    input.min_size_train: (640, 672, 704, 736, 768, 800)
+

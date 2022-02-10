@@ -1,0 +1,9 @@
+# docker build  -f  tzb2_finalDockerfile -t image.rsaicp.com/i18253591028/casade_rcnn_r50_baseline:1.0.0  .
+
+FROM houbenzhou/conda:copy_conda_tzb2
+
+#
+COPY .  /work
+
+#
+CMD ["python", "-u", "/work/main.py"]

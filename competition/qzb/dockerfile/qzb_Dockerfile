@@ -1,0 +1,36 @@
+# docker build  -f  qzb_Dockerfile -t ubuntu_desktop/2004_cuda111_cudnn8_pycharm_idesktop:20210928  .
+# docker run --gpus all -e LANG=en_US.UTF-8  -d --net=bridge --restart always --name  qzb_competition -d -p 10101:10001 -p 10102:80 -p 10103:5900 -e RESOLUTION=1920x1080  -e VNC_PASSWORD=qzb -v /home:/home -v /dev/shm:/dev/shm ubuntu_desktop/2004_cuda111_cudnn8_pycharm_idesktop:20210927
+# docker stop qzb_competition
+# docker rm qzb_competition
+
+
+
+FROM houbenzhou/ubuntu_desktop:2004_cuda111_cudnn8_20210420
+USER root
+ENV SOFTWARE=/headless/Supermap/
+
+COPY ./software/geoai/ $SOFTWARE/
+RUN cp $SOFTWARE/sources.list /etc/apt
+
+# ==================================================================
+# software
+# ------------------------------------------------------------------
+
+RUN rm -rf /root/.pip/ && \
+    mkdir -p /root/.pip && \
+    mkdir -p /headless/Supermap/ && \
+    mkdir -p /opt/SuperMap/License/&& \
+    mkdir -p /opt/SuperMap/iobjects/1010/ && \
+    cp $SOFTWARE/pip.conf  /root/.pip/ && \
+    cp $SOFTWARE/supermap-2021.lic9d  /opt/SuperMap/License/ && \
+    cp -r $SOFTWARE/Bin  /opt/SuperMap/iobjects/1010/ && \
+    cp $SOFTWARE/pycharm.desktop  /usr/share/applications && \
+    cp $SOFTWARE/idesktop.desktop  /usr/share/applications
+
+
+# ==================================================================
+# apt software
+# ------------------------------------------------------------------
+RUN  apt-get update && apt-get install -y --no-install-recommends \
+          libidn11-dev && \
+          rm -rf /var/lib/apt/lists/*

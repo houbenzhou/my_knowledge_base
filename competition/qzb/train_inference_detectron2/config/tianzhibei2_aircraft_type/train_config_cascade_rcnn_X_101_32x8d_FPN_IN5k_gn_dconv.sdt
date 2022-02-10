@@ -1,0 +1,14 @@
+application:
+  name: object_detection
+framework:
+  name: pytorch
+model:
+  name: cascade_rcnn
+  backbone_name: R-101
+  backbone_file: R-101.pkl
+  default_config: cascade_mask_rcnn_X_101_32x8d_FPN_IN5k_gn_dconv
+trainer:
+    model.mask_on: False
+    model.anchor_generator.aspect_ratios: [[0.8, 1.0, 1.25]]
+    input.min_size_train: (640,  864)
+

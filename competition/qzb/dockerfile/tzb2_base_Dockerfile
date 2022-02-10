@@ -1,0 +1,23 @@
+#
+FROM image.rsaicp.com/base/cuda:11.0-cudnn8-runtime-ubuntu18.04
+
+#
+RUN apt-get update && apt-get install -y --no-install-recommends \
+         build-essential \
+         cmake \
+         curl \
+         ca-certificates \
+         libjpeg-dev \
+         libpng-dev \
+         python3 \
+         python3-pip && \
+     rm -rf /var/lib/apt/lists/*
+
+#
+RUN pip3 install torch==1.7.1+cu110 torchvision==0.8.2+cu110 torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html
+
+#
+COPY .  /work
+
+#
+CMD ["python3", "-u", "/work/main.py"]
