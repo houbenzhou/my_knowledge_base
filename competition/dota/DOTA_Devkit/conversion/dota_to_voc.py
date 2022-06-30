@@ -244,16 +244,16 @@ def _save_index_file(output_path_main, output_path_img):
 
     for pic_name in list_train:
         label_name = pic_name.split('.')[0]
-        train_txt.write(label_name + os.linesep)
+        train_txt.write(label_name+'\n')
     for pic_name in list_val:
         label_name = pic_name.split('.')[0]
-        val_txt.write(label_name + os.linesep)
+        val_txt.write(label_name+'\n' )
     for pic_name in list_test:
         label_name = pic_name.split('.')[0]
-        test_txt.write(label_name + os.linesep)
+        test_txt.write(label_name+'\n')
     for pic_name in list_trainval:
         label_name = pic_name.split('.')[0]
-        trainval_txt.write(label_name + os.linesep)
+        trainval_txt.write(label_name+'\n')
 
     # 关闭所有打开的文件
     train_txt.close()
@@ -288,13 +288,13 @@ def get_parser():
     parser = argparse.ArgumentParser(description="split dota")
     parser.add_argument(
         "--input_dota_path",
-        default="/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800_gsd",
+        default=r"E:\workspaces\data\dota_splite",
         help="Base path for dota data",
     )
 
     parser.add_argument(
         "--out_voc_path",
-        default='/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800_gsd/VOC1',
+        default=r'E:\workspaces\data\dota_splite\voc',
         help="Output base path for dota data",
     )
     parser.add_argument(
@@ -335,9 +335,9 @@ if __name__ == '__main__':
     if category is not None:
         regex = ",|，"
         category = re.split(regex, category)
-    # 生成VOC的标签数据
-    create_annotation(path_images, path_label, category, tile_size, tile_offset, voc_labels_path, sda_path)
-    # 生成VOC的图像数据
-    create_images(path_images, voc_labels_path, voc_images_path)
+    # # 生成VOC的标签数据
+    # create_annotation(path_images, path_label, category, tile_size, tile_offset, voc_labels_path, sda_path)
+    # # 生成VOC的图像数据
+    # create_images(path_images, voc_labels_path, voc_images_path)
     # # 生成VOC的索引文件
     _save_index_file(voc_main_path, voc_labels_path)
