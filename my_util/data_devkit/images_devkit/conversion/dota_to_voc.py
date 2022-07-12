@@ -112,7 +112,7 @@ def create_annotation(path_images, path_label, categorys, tile_size, tile_offset
     if not os.path.exists(target_label_path):
         os.makedirs(target_label_path)
     dict_categorys = set([])
-    categorys_temp = ['__background__']
+    categorys_temp = []
     for pic_name in pic_names:
         # 获取图片路径，用于获取图像大小以及通道数
         images_pth = os.path.join(path_images, pic_name)
@@ -138,7 +138,7 @@ def create_annotation(path_images, path_label, categorys, tile_size, tile_offset
                     # 读到数据最后跳出，结束循环。数据的最后也就是读不到数据了，mystr为空的时候
                     break
                 list = mystr.split(' ')
-                if len(list)>=8:
+                if len(list) >= 8:
                     x = []
                     y = []
                     x.append(float(list[0]))
@@ -302,7 +302,7 @@ def get_parser():
         "--category",
         # default='plane,storage-tank,tennis-court,ground-track-field,large-vehicle',
         default=None,
-    help = "Output base path for dota data",
+        help="Output base path for dota data",
     )
     parser.add_argument(
         "--tile_size",
@@ -332,7 +332,8 @@ if __name__ == '__main__':
     voc_labels_path = os.path.join(out_voc_path, "Annotations")
     voc_images_path = os.path.join(out_voc_path, "Images")
     voc_main_path = os.path.join(out_voc_path, "ImageSets", "Main")
-    sda_path = os.path.join(out_voc_path, "VOC.sda")
+    basename = os.path.basename(out_voc_path)
+    sda_path = os.path.join(out_voc_path, basename + ".sda")
     # 将类别的字符串按照,号或者，号进行分割
     if category is not None:
         regex = ",|，"

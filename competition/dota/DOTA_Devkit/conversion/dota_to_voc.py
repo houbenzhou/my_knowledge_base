@@ -112,7 +112,7 @@ def create_annotation(path_images, path_label, categorys, tile_size, tile_offset
     if not os.path.exists(target_label_path):
         os.makedirs(target_label_path)
     dict_categorys = set([])
-    categorys_temp = ['__background__']
+    categorys_temp = []
     for pic_name in pic_names:
         # 获取图片路径，用于获取图像大小以及通道数
         images_pth = os.path.join(path_images, pic_name)
@@ -162,7 +162,7 @@ def create_annotation(path_images, path_label, categorys, tile_size, tile_offset
 
                 if categorys is None:
                     if (ymax > (ymin + 2)) & (xmax > (xmin + 2)) & (difficult <= 2):
-                        if((ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
+                        if ((ymax - ymin) / (xmax - xmin) <= 9) & ((ymax - ymin) / (xmax - xmin) >= 0.13):
                             listnew = []
                             listnew.append(xmin)
                             listnew.append(ymin)
@@ -248,16 +248,16 @@ def _save_index_file(output_path_main, output_path_img):
 
     for pic_name in list_train:
         label_name = pic_name.split('.')[0]
-        train_txt.write(label_name+'\n')
+        train_txt.write(label_name + '\n')
     for pic_name in list_val:
         label_name = pic_name.split('.')[0]
-        val_txt.write(label_name+'\n' )
+        val_txt.write(label_name + '\n')
     for pic_name in list_test:
         label_name = pic_name.split('.')[0]
-        test_txt.write(label_name+'\n')
+        test_txt.write(label_name + '\n')
     for pic_name in list_trainval:
         label_name = pic_name.split('.')[0]
-        trainval_txt.write(label_name+'\n')
+        trainval_txt.write(label_name + '\n')
 
     # 关闭所有打开的文件
     train_txt.close()
@@ -334,7 +334,8 @@ if __name__ == '__main__':
     voc_labels_path = os.path.join(out_voc_path, "Annotations")
     voc_images_path = os.path.join(out_voc_path, "Images")
     voc_main_path = os.path.join(out_voc_path, "ImageSets", "Main")
-    sda_path = os.path.join(out_voc_path, "VOC.sda")
+    basename = os.path.basename(out_voc_path)
+    sda_path = os.path.join(out_voc_path, basename + ".sda")
     # 将类别的字符串按照,号或者，号进行分割
     if category is not None:
         regex = ",|，"
