@@ -188,7 +188,7 @@ def get_classname(train_data_path):
         config_dict = yaml.load(f, Loader=yaml.FullLoader)
         voc_config = DotMap(config_dict)
         classes = voc_config.dataset.get('classes')
-        del (classes[0])
+        # del (classes[0])
     return classes
 
 
@@ -322,9 +322,9 @@ if __name__ == '__main__':
     # image_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val/images"
     # label_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val/labelTxt"
     # 统计dotav2 原始数据集的指标
-    train_data_path = '/home/data/windowdata/data/dota/dotav2/dotav2/voc2'
-    image_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val/images"
-    label_data_path = "/home/data/windowdata/data/dota/dotav2/dotav2/labelTxt-v1.5/train"
+    train_data_path = r'E:\workspaces\data\dota_splite\voc'
+    image_data_path = r"C:\Users\houbenzhou\Desktop\dota\dota\train_val\images"
+    label_data_path = r"C:\Users\houbenzhou\Desktop\dota\dota\train_val\labelTxt"
     # 统计切图800后的原始数据集指标
     # image_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/images"
     # label_data_path = "/home/data/windowdata/data/dota/dotav1/dotav1/train_val_splite_800/labelTxt"
@@ -335,8 +335,8 @@ if __name__ == '__main__':
 
     dataset_dicts = load_dota_instances(image_data_path, label_data_path, class_names)
 
-    # conunt_instances_class_number(dataset_dicts, class_names)
+    conunt_instances_class_number(dataset_dicts, class_names)
 
     count_instances_class_small_middle_large_number(dataset_dicts, class_names)
 
-    # count_instances_class_aspect_ratio_number(dataset_dicts, class_names)
+    count_instances_class_aspect_ratio_number(dataset_dicts, class_names)

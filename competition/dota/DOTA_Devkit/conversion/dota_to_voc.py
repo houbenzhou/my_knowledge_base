@@ -152,6 +152,10 @@ def create_annotation(path_images, path_label, categorys, tile_size, tile_offset
                 ymin = min(y)
                 xmax = max(x)
                 ymax = max(y)
+                xmin = int(xmin)
+                ymin = int(ymin)
+                xmax = int(xmax)
+                ymax = int(ymax)
                 name = list[8]
                 dict_categorys.add(name)
                 difficult = int(list[9][0])
@@ -294,7 +298,7 @@ def get_parser():
 
     parser.add_argument(
         "--out_voc_path",
-        default=r'E:\workspaces\data\dota_splite\voc',
+        default=r'E:\workspaces\data\dota_splite\VOC',
         help="Output base path for dota data",
     )
     parser.add_argument(
@@ -336,8 +340,8 @@ if __name__ == '__main__':
         regex = ",|，"
         category = re.split(regex, category)
     # # 生成VOC的标签数据
-    # create_annotation(path_images, path_label, category, tile_size, tile_offset, voc_labels_path, sda_path)
-    # # 生成VOC的图像数据
-    # create_images(path_images, voc_labels_path, voc_images_path)
+    create_annotation(path_images, path_label, category, tile_size, tile_offset, voc_labels_path, sda_path)
+    # 生成VOC的图像数据
+    create_images(path_images, voc_labels_path, voc_images_path)
     # # 生成VOC的索引文件
     _save_index_file(voc_main_path, voc_labels_path)
