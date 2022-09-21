@@ -29,7 +29,8 @@ docker run --gpus all -d --net=bridge --restart always --name  ubuntu_desktop_ho
 3、pycharm
 4、ssr
 
-
+## 解决linux下conda的qt报错问题
+执行setconda.sh
 
 
 
